@@ -15,7 +15,7 @@ const headingFont = Cormorant_Garamond({
 });
 
 export const metadata: Metadata = {
-  title: "Permanence Penale",
+  title: "la gavance",
   description:
     "Application web de gestion des gardes a vue, des notifications avocats et des permanences par ville.",
 };

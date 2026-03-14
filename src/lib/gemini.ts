@@ -1,11 +1,5 @@
 type FetchImplementation = typeof fetch;
 
-type GeminiFile = {
-  name: string;
-  uri: string;
-  mimeType?: string;
-};
-
 type GeminiGenerateContentPayload = {
   candidates?: Array<{
     content?: {
@@ -16,25 +10,27 @@ type GeminiGenerateContentPayload = {
   }>;
 };
 
-type GeminiSummaryOptions = {
+type GeminiTextSummaryOptions = {
   apiKey?: string | null;
   model?: string;
-  pdfBuffer: Buffer;
+  sourceText: string;
   fileName: string;
   fetchImplementation?: FetchImplementation;
+  timeoutMs?: number;
 };
 
 const GEMINI_BASE_URL = "https://generativelanguage.googleapis.com";
 const DEFAULT_GEMINI_MODEL = "gemini-2.5-flash";
+const DEFAULT_GEMINI_TIMEOUT_MS = 8000;
 
 function readGeminiApiKey() {
   return process.env.GEMINI_API_KEY?.trim() || "";
 }
 
-function buildSummaryPrompt(fileName: string) {
+function buildSummaryPrompt(fileName: string, sourceText: string) {
   return [
     `Tu es un assistant juridique francophone.`,
-    `Resume ce PDF de garde a vue de maniere concise et utile pour un avocat de permanence.`,
+    `Resume ce texte extrait d'un PDF de garde a vue de maniere concise et utile pour un avocat de permanence.`,
     `Nom du fichier: ${fileName}.`,
     `Structure attendue:`,
     `1. Identite / elements d'identification si presents`,
@@ -43,7 +39,9 @@ function buildSummaryPrompt(fileName: string) {
     `4. Droits, horaires, actes et informations procedurales importantes`,
     `5. Points de vigilance pour l'avocat`,
     `Si une information n'apparait pas clairement, indique-le. Reponds en francais avec des phrases courtes.`,
-  ].join("\n");
+    `Texte a analyser:`,
+    sourceText.slice(0, 24000),
+  ].join("\n\n");
 }
 
 function extractTextFromGeminiResponse(payload: unknown) {
@@ -65,101 +63,22 @@ function extractTextFromGeminiResponse(payload: unknown) {
   return text || null;
 }
 
-async function uploadPdfToGemini(
-  apiKey: string,
-  fileName: string,
-  pdfBuffer: Buffer,
-  fetchImplementation: FetchImplementation,
-) {
-  const startResponse = await fetchImplementation(
-    `${GEMINI_BASE_URL}/upload/v1beta/files`,
-    {
-      method: "POST",
-      headers: {
-        "x-goog-api-key": apiKey,
-        "X-Goog-Upload-Protocol": "resumable",
-        "X-Goog-Upload-Command": "start",
-        "X-Goog-Upload-Header-Content-Length": String(pdfBuffer.byteLength),
-        "X-Goog-Upload-Header-Content-Type": "application/pdf",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        file: {
-          display_name: fileName,
-        },
-      }),
-    },
-  );
-
-  if (!startResponse.ok) {
-    throw new Error(`Gemini upload start failed with status ${startResponse.status}.`);
-  }
-
-  const uploadUrl = startResponse.headers.get("x-goog-upload-url");
-
-  if (!uploadUrl) {
-    throw new Error("Gemini upload URL missing from response headers.");
-  }
-
-  const uploadResponse = await fetchImplementation(uploadUrl, {
-    method: "POST",
-    headers: {
-      "Content-Length": String(pdfBuffer.byteLength),
-      "X-Goog-Upload-Offset": "0",
-      "X-Goog-Upload-Command": "upload, finalize",
-    },
-    body: new Uint8Array(pdfBuffer),
-  });
-
-  if (!uploadResponse.ok) {
-    throw new Error(`Gemini upload finalize failed with status ${uploadResponse.status}.`);
-  }
-
-  const uploadPayload = (await uploadResponse.json()) as {
-    file?: GeminiFile;
-  };
-
-  if (!uploadPayload.file?.uri || !uploadPayload.file?.name) {
-    throw new Error("Gemini upload response did not return a usable file reference.");
-  }
-
-  return uploadPayload.file;
-}
-
-async function deleteGeminiFile(
-  apiKey: string,
-  fileName: string,
-  fetchImplementation: FetchImplementation,
-) {
-  await fetchImplementation(`${GEMINI_BASE_URL}/v1beta/files/${fileName}`, {
-    method: "DELETE",
-    headers: {
-      "x-goog-api-key": apiKey,
-    },
-  }).catch(() => undefined);
-}
-
-export async function generatePdfSummaryWithGemini({
+export async function generateTextSummaryWithGemini({
   apiKey = readGeminiApiKey(),
   model = process.env.GEMINI_MODEL?.trim() || DEFAULT_GEMINI_MODEL,
-  pdfBuffer,
+  sourceText,
   fileName,
   fetchImplementation = fetch,
-}: GeminiSummaryOptions) {
-  if (!apiKey) {
+  timeoutMs = Number(process.env.GEMINI_TIMEOUT_MS || DEFAULT_GEMINI_TIMEOUT_MS),
+}: GeminiTextSummaryOptions) {
+  if (!apiKey || !sourceText.trim()) {
     return null;
   }
 
-  let uploadedFile: GeminiFile | null = null;
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
-    uploadedFile = await uploadPdfToGemini(
-      apiKey,
-      fileName,
-      pdfBuffer,
-      fetchImplementation,
-    );
-
     const generationResponse = await fetchImplementation(
       `${GEMINI_BASE_URL}/v1beta/models/${model}:generateContent`,
       {
@@ -172,17 +91,14 @@ export async function generatePdfSummaryWithGemini({
           contents: [
             {
               parts: [
-                { text: buildSummaryPrompt(fileName) },
                 {
-                  file_data: {
-                    mime_type: uploadedFile.mimeType || "application/pdf",
-                    file_uri: uploadedFile.uri,
-                  },
+                  text: buildSummaryPrompt(fileName, sourceText),
                 },
               ],
             },
           ],
         }),
+        signal: controller.signal,
       },
     );
 
@@ -193,19 +109,11 @@ export async function generatePdfSummaryWithGemini({
     }
 
     const payload = await generationResponse.json();
-    const summary = extractTextFromGeminiResponse(payload);
-
-    if (!summary) {
-      throw new Error("Gemini returned an empty summary.");
-    }
-
-    return summary;
+    return extractTextFromGeminiResponse(payload);
   } catch (error) {
-    console.error("Gemini PDF summary failed", error);
+    console.error("Gemini text summary failed", error);
     return null;
   } finally {
-    if (uploadedFile?.name) {
-      await deleteGeminiFile(apiKey, uploadedFile.name, fetchImplementation);
-    }
+    clearTimeout(timeout);
   }
 }

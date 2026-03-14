@@ -1,7 +1,7 @@
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 
-import { generatePdfSummaryWithGemini } from "@/lib/gemini";
+import { generateTextSummaryWithGemini } from "@/lib/gemini";
 
 const MAX_PDF_SIZE_BYTES = 15 * 1024 * 1024;
 const STORAGE_DIRECTORY = process.env.VERCEL
@@ -245,11 +245,6 @@ export async function prepareCustodyRecordUpload(
   let pageCount: number | null = null;
   let summary = "";
 
-  const geminiSummaryPromise = generatePdfSummaryWithGemini({
-    fileName: safeName,
-    pdfBuffer: buffer,
-  });
-
   try {
     const extracted = await extractPdfContents(buffer);
     text = extracted.text || null;
@@ -260,7 +255,12 @@ export async function prepareCustodyRecordUpload(
       "Le PDF a bien ete joint, mais l'extraction automatique du texte a echoue. Le document original reste disponible pour lecture et un OCR ou un LLM pourra etre ajoute ensuite si besoin.";
   }
 
-  const geminiSummary = await geminiSummaryPromise;
+  const geminiSummary = text
+    ? await generateTextSummaryWithGemini({
+        fileName: safeName,
+        sourceText: text,
+      })
+    : null;
 
   if (geminiSummary) {
     summary = `Resume Gemini\n${geminiSummary}`;
