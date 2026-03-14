@@ -1,8 +1,6 @@
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 
-import { PDFParse } from "pdf-parse";
-
 const MAX_PDF_SIZE_BYTES = 15 * 1024 * 1024;
 const STORAGE_DIRECTORY = process.env.VERCEL
   ? path.join("/tmp", "custody-records")
@@ -202,6 +200,7 @@ function assertPdfSignature(buffer: Buffer) {
 }
 
 async function extractPdfContents(buffer: Buffer) {
+  const { PDFParse } = await import("pdf-parse");
   const parser = new PDFParse({ data: buffer });
 
   try {
