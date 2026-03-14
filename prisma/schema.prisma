@@ -1,0 +1,150 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  POLICIER
+  AVOCAT
+  BATONNIER
+}
+
+enum City {
+  PARIS
+  BOBIGNY
+  CRETEIL
+  NANTERRE
+  VERSAILLES
+  EVRY_COURCOURONNES
+  MELUN
+  PONTOISE
+}
+
+enum AlertStatus {
+  PENDING
+  ACCEPTED
+  UNANSWERED
+  CLOSED
+}
+
+enum AssignmentStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  EXPIRED
+}
+
+enum NotificationType {
+  NEW_ALERT
+  ESCALATED
+  ALERT_ACCEPTED
+  ALERT_DECLINED
+  SYSTEM
+}
+
+model User {
+  id              String            @id @default(cuid())
+  name            String
+  email           String            @unique
+  passwordHash    String
+  role            Role
+  city            City?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  dutyAssignments DutyAssignment[]  @relation("LawyerDutyAssignments")
+  assignedDuties  DutyAssignment[]  @relation("BatonnierAssignedDuties")
+  policeAlerts    CustodyAlert[]    @relation("PoliceAlerts")
+  currentAlerts   CustodyAlert[]    @relation("CurrentLawyerAlerts")
+  acceptedAlerts  CustodyAlert[]    @relation("AcceptedLawyerAlerts")
+  assignments     AlertAssignment[]
+  notifications   Notification[]
+  updatedSettings ResponseSetting[] @relation("SettingsUpdatedBy")
+}
+
+model DutyAssignment {
+  id           String   @id @default(cuid())
+  city         City
+  priority     Int
+  active       Boolean  @default(true)
+  lawyerId     String
+  assignedById String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  lawyer       User     @relation("LawyerDutyAssignments", fields: [lawyerId], references: [id], onDelete: Cascade)
+  assignedBy   User     @relation("BatonnierAssignedDuties", fields: [assignedById], references: [id], onDelete: Cascade)
+
+  @@unique([city, priority])
+  @@unique([city, lawyerId])
+}
+
+model ResponseSetting {
+  id                    String   @id @default(cuid())
+  city                  City     @unique
+  responseWindowMinutes Int      @default(10)
+  updatedById           String
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  updatedBy             User     @relation("SettingsUpdatedBy", fields: [updatedById], references: [id], onDelete: Cascade)
+}
+
+model CustodyAlert {
+  id                     String            @id @default(cuid())
+  reference              String            @unique
+  suspectName            String
+  policeStation          String
+  notes                  String?
+  city                   City
+  status                 AlertStatus       @default(PENDING)
+  policeOfficerId        String
+  currentLawyerId        String?
+  acceptedLawyerId       String?
+  currentAssignmentOrder Int?
+  responseDeadline       DateTime?
+  acceptedAt             DateTime?
+  createdAt              DateTime          @default(now())
+  updatedAt              DateTime          @updatedAt
+  policeOfficer          User              @relation("PoliceAlerts", fields: [policeOfficerId], references: [id], onDelete: Cascade)
+  currentLawyer          User?             @relation("CurrentLawyerAlerts", fields: [currentLawyerId], references: [id], onDelete: SetNull)
+  acceptedLawyer         User?             @relation("AcceptedLawyerAlerts", fields: [acceptedLawyerId], references: [id], onDelete: SetNull)
+  assignments            AlertAssignment[]
+  notifications          Notification[]
+
+  @@index([city, status])
+  @@index([policeOfficerId, createdAt])
+}
+
+model AlertAssignment {
+  id               String           @id @default(cuid())
+  alertId          String
+  lawyerId         String
+  priority         Int
+  status           AssignmentStatus @default(PENDING)
+  notifiedAt       DateTime         @default(now())
+  respondedAt      DateTime?
+  responseDeadline DateTime
+  alert            CustodyAlert     @relation(fields: [alertId], references: [id], onDelete: Cascade)
+  lawyer           User             @relation(fields: [lawyerId], references: [id], onDelete: Cascade)
+
+  @@unique([alertId, priority])
+  @@index([lawyerId, status])
+  @@index([responseDeadline, status])
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  alertId   String?
+  title     String
+  message   String
+  type      NotificationType @default(SYSTEM)
+  readAt    DateTime?
+  createdAt DateTime         @default(now())
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  alert     CustodyAlert?    @relation(fields: [alertId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
+}

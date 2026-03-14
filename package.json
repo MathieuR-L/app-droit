@@ -6,12 +6,21 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "db:migrate": "tsx prisma/setup.ts",
+    "db:seed": "tsx prisma/seed.ts",
+    "db:studio": "prisma studio"
   },
   "dependencies": {
+    "@prisma/client": "^6.19.0",
+    "bcryptjs": "^3.0.3",
+    "clsx": "^2.1.1",
+    "jose": "^6.2.1",
+    "lucide-react": "^0.577.0",
     "next": "16.1.6",
     "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "react-dom": "19.2.3",
+    "zod": "^4.1.12"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
@@ -20,7 +29,9 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
+    "prisma": "^6.19.0",
     "tailwindcss": "^4",
+    "tsx": "^4.21.0",
     "typescript": "^5"
   }
 }

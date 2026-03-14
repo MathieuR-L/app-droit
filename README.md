@@ -1,36 +1,73 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Permanence Penale
 
-## Getting Started
+Application web juridique pour gerer les gardes a vue entre trois profils:
 
-First, run the development server:
+- `Policier`: declare une nouvelle garde a vue depuis sa ville.
+- `Avocat`: recoit les notifications de permanence et accepte ou refuse dans un delai defini.
+- `Batonnier`: attribue les villes aux avocats, choisit l'ordre de permanence et regle le temps de reponse.
+
+L'application est construite avec `Next.js`, `TypeScript`, `Prisma` et `SQLite`.
+
+## Fonctionnalites
+
+- Authentification par email / mot de passe.
+- Inscription avec role `policier`, `avocat` ou `batonnier`.
+- Interface differenciee selon le metier.
+- Attribution des gardes a vue par ville d'Ile-de-France.
+- Escalade automatique vers l'avocat suivant si le delai de reponse expire.
+- Notifications integrees a l'application.
+- Tableau de bord batonnier pour definir les permanences et les delais.
+
+## Demarrage local
+
+1. Installer les dependances:
+
+```bash
+npm install
+```
+
+2. Initialiser la base SQLite:
+
+```bash
+npm run db:migrate
+```
+
+3. Injecter les donnees de demonstration:
+
+```bash
+npm run db:seed
+```
+
+4. Lancer l'application:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Application disponible sur `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Comptes de demonstration
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Mot de passe commun: `demo1234`
 
-## Learn More
+- `batonnier@demo.fr`
+- `policier.paris@demo.fr`
+- `avocat.paris1@demo.fr`
 
-To learn more about Next.js, take a look at the following resources:
+Des utilisateurs supplementaires sont aussi seeds pour `Bobigny`, `Creteil` et `Nanterre`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Scripts utiles
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `npm run dev`: mode developpement.
+- `npm run build`: build de production.
+- `npm run start`: lance le build.
+- `npm run lint`: verification ESLint.
+- `npm run db:migrate`: cree le schema SQLite local.
+- `npm run db:seed`: recharge les donnees de demonstration.
+- `npm run db:studio`: ouvre Prisma Studio.
 
-## Deploy on Vercel
+## Notes
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Le delai de reponse est configurable par ville depuis l'espace batonnier.
+- Les avocats peuvent s'inscrire sans ville; le batonnier leur en assigne une ensuite.
+- L'escalade est traitee cote serveur et se reflechit automatiquement dans les tableaux de bord via rafraichissement regulier.
