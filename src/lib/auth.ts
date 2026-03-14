@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 
 import { ROLE_ROUTES } from "@/lib/constants";
 import { prisma } from "@/lib/prisma";
+import { getSessionSecretValue } from "@/lib/session-config";
 
 const SESSION_COOKIE_NAME = "app-droit-session";
 const SESSION_DURATION_SECONDS = 60 * 60 * 24 * 7;
@@ -16,13 +17,7 @@ type SessionPayload = {
 };
 
 function getSessionSecret() {
-  const secret = process.env.SESSION_SECRET;
-
-  if (!secret) {
-    throw new Error("SESSION_SECRET is not configured.");
-  }
-
-  return new TextEncoder().encode(secret);
+  return new TextEncoder().encode(getSessionSecretValue());
 }
 
 async function signSession(payload: SessionPayload) {
