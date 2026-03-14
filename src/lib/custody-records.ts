@@ -4,7 +4,9 @@ import path from "node:path";
 import { PDFParse } from "pdf-parse";
 
 const MAX_PDF_SIZE_BYTES = 15 * 1024 * 1024;
-const STORAGE_DIRECTORY = path.join(process.cwd(), "storage", "custody-records");
+const STORAGE_DIRECTORY = process.env.VERCEL
+  ? path.join("/tmp", "custody-records")
+  : path.join(process.cwd(), "storage", "custody-records");
 
 const STOP_WORDS = new Set([
   "a",

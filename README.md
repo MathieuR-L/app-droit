@@ -75,3 +75,5 @@ Des utilisateurs supplementaires sont aussi seeds pour `Bobigny`, `Creteil` et `
 - L'escalade est traitee cote serveur et se reflechit automatiquement dans les tableaux de bord via rafraichissement regulier.
 - Les PDF sont stockes localement dans `storage/custody-records` et servis via une route authentifiee.
 - Si un PDF ne contient pas de texte exploitable, le document reste disponible et le resume indique qu'un OCR ou un LLM serait preferable.
+- En deployment Vercel, l'application copie `prisma/dev.db` vers `/tmp/app-droit.db` pour permettre une execution de demo sans base externe. Les donnees restent donc ephemeres et peuvent etre reinitialisees a tout moment.
+- Pour eviter un echec de connexion en production, ajoute au minimum `SESSION_SECRET` dans les variables d'environnement Vercel.

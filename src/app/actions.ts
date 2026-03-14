@@ -63,25 +63,35 @@ export async function loginAction(formData: FormData) {
     redirectWithMessage("/login", "error", parsed.error.issues[0]?.message ?? "Connexion impossible.");
   }
 
-  const user = await prisma.user.findUnique({
-    where: { email: parsed.data.email.toLowerCase() },
-  });
+  try {
+    const user = await prisma.user.findUnique({
+      where: { email: parsed.data.email.toLowerCase() },
+    });
 
-  if (!user) {
-    redirectWithMessage("/login", "error", "Compte introuvable.");
+    if (!user) {
+      redirectWithMessage("/login", "error", "Compte introuvable.");
+    }
+
+    const passwordIsValid = await verifyPassword(
+      parsed.data.password,
+      user.passwordHash,
+    );
+
+    if (!passwordIsValid) {
+      redirectWithMessage("/login", "error", "Mot de passe incorrect.");
+    }
+
+    await createUserSession(user.id, user.role);
+    redirect(ROLE_ROUTES[user.role]);
+  } catch (error) {
+    redirectWithMessage(
+      "/login",
+      "error",
+      error instanceof Error
+        ? `Configuration serveur incomplete: ${error.message}`
+        : "Connexion impossible pour cause de configuration serveur.",
+    );
   }
-
-  const passwordIsValid = await verifyPassword(
-    parsed.data.password,
-    user.passwordHash,
-  );
-
-  if (!passwordIsValid) {
-    redirectWithMessage("/login", "error", "Mot de passe incorrect.");
-  }
-
-  await createUserSession(user.id, user.role);
-  redirect(ROLE_ROUTES[user.role]);
 }
 
 export async function registerAction(formData: FormData) {
@@ -109,31 +119,41 @@ export async function registerAction(formData: FormData) {
     );
   }
 
-  const existingUser = await prisma.user.findUnique({
-    where: { email: parsed.data.email.toLowerCase() },
-    select: { id: true },
-  });
+  try {
+    const existingUser = await prisma.user.findUnique({
+      where: { email: parsed.data.email.toLowerCase() },
+      select: { id: true },
+    });
 
-  if (existingUser) {
+    if (existingUser) {
+      redirectWithMessage(
+        "/register",
+        "error",
+        "Cette adresse email est deja utilisee.",
+      );
+    }
+
+    const user = await prisma.user.create({
+      data: {
+        name: parsed.data.name.trim(),
+        email: parsed.data.email.toLowerCase(),
+        passwordHash: await hashPassword(parsed.data.password),
+        role: parsed.data.role,
+        city: parsed.data.role === Role.POLICIER ? parsed.data.city : null,
+      },
+    });
+
+    await createUserSession(user.id, user.role);
+    redirect(ROLE_ROUTES[user.role]);
+  } catch (error) {
     redirectWithMessage(
       "/register",
       "error",
-      "Cette adresse email est deja utilisee.",
+      error instanceof Error
+        ? `Configuration serveur incomplete: ${error.message}`
+        : "Inscription impossible pour cause de configuration serveur.",
     );
   }
-
-  const user = await prisma.user.create({
-    data: {
-      name: parsed.data.name.trim(),
-      email: parsed.data.email.toLowerCase(),
-      passwordHash: await hashPassword(parsed.data.password),
-      role: parsed.data.role,
-      city: parsed.data.role === Role.POLICIER ? parsed.data.city : null,
-    },
-  });
-
-  await createUserSession(user.id, user.role);
-  redirect(ROLE_ROUTES[user.role]);
 }
 
 export async function logoutAction() {
