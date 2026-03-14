@@ -4,6 +4,7 @@ import { unstable_noStore as noStore } from "next/cache";
 import { acceptAlertAction, declineAlertAction } from "@/app/actions";
 import { AutoRefresh } from "@/components/auto-refresh";
 import { DashboardShell } from "@/components/dashboard-shell";
+import { DocumentSummaryCard } from "@/components/document-summary-card";
 import { FeedbackBanner } from "@/components/feedback-banner";
 import { NotificationsPanel } from "@/components/notifications-panel";
 import { SectionCard } from "@/components/section-card";
@@ -161,7 +162,7 @@ export default async function AvocatDashboardPage({
           ) : (
             <SectionCard
               title="Alertes actives"
-              description="Chaque demande affiche l'heure limite. Si tu ne reponds pas, elle est transmise automatiquement a l'avocat suivant."
+              description="Chaque demande affiche l'heure limite. Si tu ne reponds pas, elle est transmise automatiquement a l'avocat suivant. Lorsqu'un PDF est joint, un resume automatique local apparait ici."
             >
               <div className="space-y-4">
                 {pendingAssignments.length ? (
@@ -190,10 +191,17 @@ export default async function AvocatDashboardPage({
                             Echeance: <strong>{formatDateTime(assignment.responseDeadline)}</strong>
                           </p>
                           {assignment.alert.notes ? (
-                            <p className="rounded-2xl bg-white px-4 py-3 text-sm leading-6 text-slate-700">
+                            <p className="rounded-2xl border border-stone-200 bg-white px-4 py-3 text-sm leading-6 text-slate-800">
                               {assignment.alert.notes}
                             </p>
                           ) : null}
+                          <DocumentSummaryCard
+                            alertId={assignment.alert.id}
+                            fileName={assignment.alert.custodyRecordFileName}
+                            pageCount={assignment.alert.custodyRecordPageCount}
+                            uploadedAt={assignment.alert.custodyRecordUploadedAt}
+                            summary={assignment.alert.custodyRecordSummary}
+                          />
                         </div>
 
                         <div className="flex gap-2">
@@ -255,6 +263,15 @@ export default async function AvocatDashboardPage({
                       {alert.policeStation} • {alert.policeOfficer.name} • Cree le{" "}
                       {formatDateTime(alert.createdAt)}
                     </p>
+                    <div className="mt-4">
+                      <DocumentSummaryCard
+                        alertId={alert.id}
+                        fileName={alert.custodyRecordFileName}
+                        pageCount={alert.custodyRecordPageCount}
+                        uploadedAt={alert.custodyRecordUploadedAt}
+                        summary={alert.custodyRecordSummary}
+                      />
+                    </div>
                   </article>
                 ))
               ) : (

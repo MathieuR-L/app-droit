@@ -16,6 +16,8 @@ L'application est construite avec `Next.js`, `TypeScript`, `Prisma` et `SQLite`.
 - Attribution des gardes a vue par ville d'Ile-de-France.
 - Escalade automatique vers l'avocat suivant si le delai de reponse expire.
 - Notifications integrees a l'application.
+- Upload d'un PDF de garde a vue par le policier.
+- Resume automatique local du PDF visible par l'avocat sans cle API.
 - Tableau de bord batonnier pour definir les permanences et les delais.
 
 ## Demarrage local
@@ -71,3 +73,5 @@ Des utilisateurs supplementaires sont aussi seeds pour `Bobigny`, `Creteil` et `
 - Le delai de reponse est configurable par ville depuis l'espace batonnier.
 - Les avocats peuvent s'inscrire sans ville; le batonnier leur en assigne une ensuite.
 - L'escalade est traitee cote serveur et se reflechit automatiquement dans les tableaux de bord via rafraichissement regulier.
+- Les PDF sont stockes localement dans `storage/custody-records` et servis via une route authentifiee.
+- Si un PDF ne contient pas de texte exploitable, le document reste disponible et le resume indique qu'un OCR ou un LLM serait preferable.

@@ -34,6 +34,13 @@ const statements = [
     "suspectName" TEXT NOT NULL,
     "policeStation" TEXT NOT NULL,
     "notes" TEXT,
+    "custodyRecordFileName" TEXT,
+    "custodyRecordStoredName" TEXT,
+    "custodyRecordMimeType" TEXT,
+    "custodyRecordExtract" TEXT,
+    "custodyRecordSummary" TEXT,
+    "custodyRecordPageCount" INTEGER,
+    "custodyRecordUploadedAt" DATETIME,
     "city" TEXT NOT NULL,
     "status" TEXT NOT NULL DEFAULT 'PENDING',
     "policeOfficerId" TEXT NOT NULL,
@@ -104,9 +111,62 @@ const statements = [
   `CREATE INDEX IF NOT EXISTS "Notification_userId_createdAt_idx" ON "Notification"("userId", "createdAt");`,
 ];
 
+const custodyAlertColumns = [
+  {
+    name: "custodyRecordFileName",
+    definition: `TEXT`,
+  },
+  {
+    name: "custodyRecordStoredName",
+    definition: `TEXT`,
+  },
+  {
+    name: "custodyRecordMimeType",
+    definition: `TEXT`,
+  },
+  {
+    name: "custodyRecordExtract",
+    definition: `TEXT`,
+  },
+  {
+    name: "custodyRecordSummary",
+    definition: `TEXT`,
+  },
+  {
+    name: "custodyRecordPageCount",
+    definition: `INTEGER`,
+  },
+  {
+    name: "custodyRecordUploadedAt",
+    definition: `DATETIME`,
+  },
+] as const;
+
+async function ensureColumn(
+  tableName: string,
+  columnName: string,
+  definition: string,
+) {
+  const columns = (await prisma.$queryRawUnsafe(
+    `PRAGMA table_info("${tableName}")`,
+  )) as Array<{ name: string }>;
+
+  if (columns.some((column) => column.name === columnName)) {
+    return;
+  }
+
+  await prisma.$executeRawUnsafe(
+    `ALTER TABLE "${tableName}" ADD COLUMN "${columnName}" ${definition};`,
+  );
+}
+
 async function main() {
   for (const statement of statements) {
     await prisma.$executeRawUnsafe(statement);
+  }
+
+  for (const column of custodyAlertColumns) {
+    await ensureColumn("CustodyAlert", column.name, column.definition);
   }
 }
 

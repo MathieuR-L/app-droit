@@ -4,6 +4,7 @@ import { unstable_noStore as noStore } from "next/cache";
 import { closeAlertAction, createAlertAction } from "@/app/actions";
 import { AutoRefresh } from "@/components/auto-refresh";
 import { DashboardShell } from "@/components/dashboard-shell";
+import { DocumentSummaryCard } from "@/components/document-summary-card";
 import { FeedbackBanner } from "@/components/feedback-banner";
 import { NotificationsPanel } from "@/components/notifications-panel";
 import { SectionCard } from "@/components/section-card";
@@ -112,43 +113,63 @@ export default async function PolicierDashboardPage({
 
           <SectionCard
             title="Nouvelle garde a vue"
-            description="Le dossier est automatiquement envoye a l'avocat de permanence de la meme ville."
+            description="Le dossier est automatiquement envoye a l'avocat de permanence de la meme ville. Tu peux joindre un PDF pour qu'un resume local soit prepare pour l'avocat."
           >
-            <form action={createAlertAction} className="grid gap-4 md:grid-cols-2">
+            <form
+              action={createAlertAction}
+              className="grid gap-4 md:grid-cols-2"
+              encType="multipart/form-data"
+            >
               <label className="block space-y-2">
-                <span className="text-sm font-medium text-slate-700">
+                <span className="text-sm font-semibold text-slate-800">
                   Nom du garde a vue
                 </span>
                 <input
                   type="text"
                   name="suspectName"
                   required
-                  className="w-full rounded-2xl border border-stone-300 bg-stone-50 px-4 py-3 outline-none transition focus:border-slate-900"
+                  className="w-full rounded-2xl border border-stone-400 bg-white px-4 py-3 text-slate-950 outline-none transition placeholder:text-slate-500 focus:border-slate-950"
                   placeholder="Nom ou reference interne"
                 />
               </label>
 
               <label className="block space-y-2">
-                <span className="text-sm font-medium text-slate-700">
+                <span className="text-sm font-semibold text-slate-800">
                   Service / commissariat
                 </span>
                 <input
                   type="text"
                   name="policeStation"
                   required
-                  className="w-full rounded-2xl border border-stone-300 bg-stone-50 px-4 py-3 outline-none transition focus:border-slate-900"
+                  className="w-full rounded-2xl border border-stone-400 bg-white px-4 py-3 text-slate-950 outline-none transition placeholder:text-slate-500 focus:border-slate-950"
                   placeholder="Commissariat central"
                 />
               </label>
 
               <label className="block space-y-2 md:col-span-2">
-                <span className="text-sm font-medium text-slate-700">Notes</span>
+                <span className="text-sm font-semibold text-slate-800">Notes</span>
                 <textarea
                   name="notes"
                   rows={4}
-                  className="w-full rounded-2xl border border-stone-300 bg-stone-50 px-4 py-3 outline-none transition focus:border-slate-900"
+                  className="w-full rounded-2xl border border-stone-400 bg-white px-4 py-3 text-slate-950 outline-none transition placeholder:text-slate-500 focus:border-slate-950"
                   placeholder="Elements utiles pour l'avocat de permanence"
                 />
+              </label>
+
+              <label className="block space-y-2 md:col-span-2">
+                <span className="text-sm font-semibold text-slate-800">
+                  PDF de garde a vue
+                </span>
+                <input
+                  type="file"
+                  name="custodyRecord"
+                  accept="application/pdf,.pdf"
+                  className="w-full rounded-2xl border border-dashed border-sky-500 bg-sky-50 px-4 py-3 text-sm font-medium text-slate-900 file:mr-4 file:rounded-full file:border-0 file:bg-slate-950 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-slate-800"
+                />
+                <p className="text-xs leading-6 text-slate-700">
+                  Format PDF uniquement. Le texte est extrait localement pour produire
+                  un resume sans cle API quand cela est possible.
+                </p>
               </label>
 
               <button
@@ -203,10 +224,17 @@ export default async function PolicierDashboardPage({
                               : ""}
                           </p>
                           {alert.notes ? (
-                            <p className="rounded-2xl bg-white px-4 py-3 text-sm leading-6 text-slate-700">
+                            <p className="rounded-2xl border border-stone-200 bg-white px-4 py-3 text-sm leading-6 text-slate-800">
                               {alert.notes}
                             </p>
                           ) : null}
+                          <DocumentSummaryCard
+                            alertId={alert.id}
+                            fileName={alert.custodyRecordFileName}
+                            pageCount={alert.custodyRecordPageCount}
+                            uploadedAt={alert.custodyRecordUploadedAt}
+                            summary={alert.custodyRecordSummary}
+                          />
                         </div>
 
                         {alert.status === "ACCEPTED" ? (

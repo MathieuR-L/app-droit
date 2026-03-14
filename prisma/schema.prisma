@@ -92,26 +92,33 @@ model ResponseSetting {
 }
 
 model CustodyAlert {
-  id                     String            @id @default(cuid())
-  reference              String            @unique
-  suspectName            String
-  policeStation          String
-  notes                  String?
-  city                   City
-  status                 AlertStatus       @default(PENDING)
-  policeOfficerId        String
-  currentLawyerId        String?
-  acceptedLawyerId       String?
-  currentAssignmentOrder Int?
-  responseDeadline       DateTime?
-  acceptedAt             DateTime?
-  createdAt              DateTime          @default(now())
-  updatedAt              DateTime          @updatedAt
-  policeOfficer          User              @relation("PoliceAlerts", fields: [policeOfficerId], references: [id], onDelete: Cascade)
-  currentLawyer          User?             @relation("CurrentLawyerAlerts", fields: [currentLawyerId], references: [id], onDelete: SetNull)
-  acceptedLawyer         User?             @relation("AcceptedLawyerAlerts", fields: [acceptedLawyerId], references: [id], onDelete: SetNull)
-  assignments            AlertAssignment[]
-  notifications          Notification[]
+  id                      String            @id @default(cuid())
+  reference               String            @unique
+  suspectName             String
+  policeStation           String
+  notes                   String?
+  custodyRecordFileName   String?
+  custodyRecordStoredName String?
+  custodyRecordMimeType   String?
+  custodyRecordExtract    String?
+  custodyRecordSummary    String?
+  custodyRecordPageCount  Int?
+  custodyRecordUploadedAt DateTime?
+  city                    City
+  status                  AlertStatus       @default(PENDING)
+  policeOfficerId         String
+  currentLawyerId         String?
+  acceptedLawyerId        String?
+  currentAssignmentOrder  Int?
+  responseDeadline        DateTime?
+  acceptedAt              DateTime?
+  createdAt               DateTime          @default(now())
+  updatedAt               DateTime          @updatedAt
+  policeOfficer           User              @relation("PoliceAlerts", fields: [policeOfficerId], references: [id], onDelete: Cascade)
+  currentLawyer           User?             @relation("CurrentLawyerAlerts", fields: [currentLawyerId], references: [id], onDelete: SetNull)
+  acceptedLawyer          User?             @relation("AcceptedLawyerAlerts", fields: [acceptedLawyerId], references: [id], onDelete: SetNull)
+  assignments             AlertAssignment[]
+  notifications           Notification[]
 
   @@index([city, status])
   @@index([policeOfficerId, createdAt])

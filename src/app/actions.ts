@@ -26,6 +26,10 @@ import {
   verifyPassword,
 } from "@/lib/auth";
 import { ROLE_ROUTES } from "@/lib/constants";
+import {
+  prepareCustodyRecordUpload,
+  removeCustodyRecordFile,
+} from "@/lib/custody-records";
 import { prisma } from "@/lib/prisma";
 
 function redirectWithMessage(
@@ -145,6 +149,7 @@ const alertSchema = z.object({
 
 export async function createAlertAction(formData: FormData) {
   const user = await requireRole(Role.POLICIER);
+  const custodyRecordValue = formData.get("custodyRecord");
   const parsed = alertSchema.safeParse({
     suspectName: formData.get("suspectName"),
     policeStation: formData.get("policeStation"),
@@ -159,14 +164,33 @@ export async function createAlertAction(formData: FormData) {
     );
   }
 
+  if (custodyRecordValue && !(custodyRecordValue instanceof File)) {
+    redirectWithMessage(
+      ROLE_ROUTES[user.role],
+      "error",
+      "Le document joint est invalide.",
+    );
+  }
+
+  let preparedRecord = null;
+
   try {
+    preparedRecord = await prepareCustodyRecordUpload(
+      custodyRecordValue instanceof File ? custodyRecordValue : null,
+    );
+
     await createCustodyAlert({
       policeOfficerId: user.id,
       suspectName: parsed.data.suspectName.trim(),
       policeStation: parsed.data.policeStation.trim(),
       notes: parsed.data.notes?.trim(),
+      custodyRecord: preparedRecord,
     });
   } catch (error) {
+    if (preparedRecord?.storedName) {
+      await removeCustodyRecordFile(preparedRecord.storedName);
+    }
+
     redirectWithMessage(
       ROLE_ROUTES[user.role],
       "error",

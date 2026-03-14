@@ -14,10 +14,10 @@ export function FeedbackBanner({
   return (
     <div
       className={cn(
-        "rounded-3xl border px-4 py-3 text-sm",
+        "rounded-3xl border px-4 py-3 text-sm font-medium",
         tone === "success"
-          ? "border-emerald-200 bg-emerald-50 text-emerald-900"
-          : "border-rose-200 bg-rose-50 text-rose-900",
+          ? "border-emerald-300 bg-emerald-100 text-emerald-950"
+          : "border-rose-300 bg-rose-100 text-rose-950",
       )}
     >
       {message}

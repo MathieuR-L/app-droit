@@ -20,21 +20,21 @@ type DashboardShellProps = {
 const accentMap = {
   blue: {
     shell:
-      "from-slate-950 via-slate-900 to-sky-950 text-white ring-sky-400/30",
-    pill: "bg-sky-400/15 text-sky-100 ring-1 ring-inset ring-sky-200/25",
-    highlight: "text-sky-200",
+      "from-slate-950 via-slate-900 to-sky-950 text-white ring-sky-300/40",
+    pill: "bg-sky-200/18 text-sky-50 ring-1 ring-inset ring-sky-100/40",
+    highlight: "text-sky-100",
   },
   emerald: {
     shell:
-      "from-stone-950 via-emerald-950 to-teal-950 text-white ring-emerald-400/30",
-    pill: "bg-emerald-400/15 text-emerald-100 ring-1 ring-inset ring-emerald-200/25",
-    highlight: "text-emerald-200",
+      "from-stone-950 via-emerald-950 to-teal-950 text-white ring-emerald-300/40",
+    pill: "bg-emerald-200/18 text-emerald-50 ring-1 ring-inset ring-emerald-100/40",
+    highlight: "text-emerald-100",
   },
   amber: {
     shell:
-      "from-stone-950 via-amber-950 to-orange-950 text-white ring-amber-400/30",
-    pill: "bg-amber-300/15 text-amber-50 ring-1 ring-inset ring-amber-200/25",
-    highlight: "text-amber-100",
+      "from-stone-950 via-amber-950 to-orange-950 text-white ring-amber-300/45",
+    pill: "bg-amber-100/18 text-amber-50 ring-1 ring-inset ring-amber-100/40",
+    highlight: "text-amber-50",
   },
 } as const;
 
@@ -55,7 +55,7 @@ export function DashboardShell({
           palette.shell,
         )}
       >
-        <header className="border-b border-white/10 px-6 py-6 sm:px-10">
+        <header className="border-b border-white/15 px-6 py-6 sm:px-10">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div className="space-y-3">
               <p className={cn("text-sm uppercase tracking-[0.35em]", palette.highlight)}>
@@ -65,27 +65,27 @@ export function DashboardShell({
                 <h1 className="font-[family-name:var(--font-heading)] text-4xl leading-none sm:text-5xl">
                   {title}
                 </h1>
-                <p className="max-w-3xl text-sm text-white/75 sm:text-base">
+                <p className="max-w-3xl text-sm text-white/88 sm:text-base">
                   {subtitle}
                 </p>
               </div>
             </div>
 
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-              <div className={cn("rounded-full px-4 py-2 text-sm font-medium", palette.pill)}>
+              <div className={cn("rounded-full px-4 py-2 text-sm font-semibold", palette.pill)}>
                 {ROLE_LABELS[user.role]}
                 {user.city ? ` • ${CITY_LABELS[user.city] ?? user.city}` : ""}
               </div>
 
-              <div className="rounded-3xl border border-white/10 bg-white/8 px-4 py-3 backdrop-blur-sm">
+              <div className="rounded-3xl border border-white/20 bg-white/12 px-4 py-3 backdrop-blur-sm">
                 <p className="text-sm font-semibold text-white">{user.name}</p>
-                <p className="text-xs text-white/65">{user.email}</p>
+                <p className="text-xs text-white/80">{user.email}</p>
               </div>
 
               <form action={logoutAction}>
                 <button
                   type="submit"
-                  className="rounded-full border border-white/20 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/10"
+                  className="rounded-full border border-white/25 bg-white/8 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/14"
                 >
                   Se deconnecter
                 </button>

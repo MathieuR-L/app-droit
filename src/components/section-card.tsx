@@ -14,7 +14,7 @@ export function SectionCard({
   return (
     <section
       className={cn(
-        "rounded-[1.75rem] border border-stone-200 bg-white/90 p-5 shadow-[0_20px_60px_rgba(44,33,16,0.08)] backdrop-blur-sm",
+        "rounded-[1.75rem] border border-stone-300 bg-white p-5 shadow-[0_20px_60px_rgba(44,33,16,0.08)] backdrop-blur-sm",
         className,
       )}
     >
@@ -23,7 +23,7 @@ export function SectionCard({
           {title}
         </h2>
         {description ? (
-          <p className="text-sm leading-6 text-slate-600">{description}</p>
+          <p className="text-sm leading-6 text-slate-700">{description}</p>
         ) : null}
       </div>
       {children}

@@ -87,6 +87,8 @@ async function assignNextLawyer(
       reference: true,
       city: true,
       policeOfficerId: true,
+      custodyRecordFileName: true,
+      custodyRecordSummary: true,
     },
   });
 
@@ -179,7 +181,7 @@ async function assignNextLawyer(
       title: escalated
         ? `Escalade de garde a vue ${alert.reference}`
         : `Nouvelle garde a vue ${alert.reference}`,
-      message: `Vous etes sollicite en priorite ${nextDuty.priority}. Reponse attendue sous ${formatRelativeMinutes(responseWindowMinutes)}.`,
+      message: `Vous etes sollicite en priorite ${nextDuty.priority}. Reponse attendue sous ${formatRelativeMinutes(responseWindowMinutes)}.${alert.custodyRecordFileName ? " Un PDF de garde a vue et un resume automatique sont disponibles." : ""}`,
       type: escalated ? NotificationType.ESCALATED : NotificationType.NEW_ALERT,
     },
   });
@@ -268,6 +270,15 @@ export async function createCustodyAlert(input: {
   suspectName: string;
   policeStation: string;
   notes?: string;
+  custodyRecord?: {
+    fileName: string;
+    storedName: string;
+    mimeType: string;
+    extractedText: string | null;
+    summary: string;
+    pageCount: number | null;
+    uploadedAt: Date;
+  } | null;
 }) {
   return prisma.$transaction(async (tx) => {
     const policeOfficer = await tx.user.findUnique({
@@ -295,6 +306,13 @@ export async function createCustodyAlert(input: {
         suspectName: input.suspectName,
         policeStation: input.policeStation,
         notes: input.notes?.trim() || null,
+        custodyRecordFileName: input.custodyRecord?.fileName ?? null,
+        custodyRecordStoredName: input.custodyRecord?.storedName ?? null,
+        custodyRecordMimeType: input.custodyRecord?.mimeType ?? null,
+        custodyRecordExtract: input.custodyRecord?.extractedText ?? null,
+        custodyRecordSummary: input.custodyRecord?.summary ?? null,
+        custodyRecordPageCount: input.custodyRecord?.pageCount ?? null,
+        custodyRecordUploadedAt: input.custodyRecord?.uploadedAt ?? null,
         city: policeOfficer.city,
         policeOfficerId: policeOfficer.id,
       },

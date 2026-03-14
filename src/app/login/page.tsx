@@ -49,7 +49,7 @@ export default async function LoginPage({
           <div className="w-full max-w-xl">
             <div className="mb-8 flex items-center justify-between gap-4">
               <div>
-                <p className="text-sm uppercase tracking-[0.3em] text-slate-500">
+                <p className="text-sm uppercase tracking-[0.3em] text-slate-700">
                   Identification securisee
                 </p>
                 <h2 className="mt-2 font-[family-name:var(--font-heading)] text-4xl text-slate-950">
@@ -58,7 +58,7 @@ export default async function LoginPage({
               </div>
               <Link
                 href="/"
-                className="rounded-full border border-stone-300 px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-900 hover:text-slate-950"
+                className="rounded-full border border-stone-400 bg-white px-4 py-2 text-sm font-semibold text-slate-800 transition hover:border-slate-950 hover:text-slate-950"
               >
                 Retour accueil
               </Link>
@@ -69,18 +69,18 @@ export default async function LoginPage({
 
               <form action={loginAction} className="space-y-4">
                 <label className="block space-y-2">
-                  <span className="text-sm font-medium text-slate-700">Email</span>
+                  <span className="text-sm font-semibold text-slate-800">Email</span>
                   <input
                     type="email"
                     name="email"
                     required
-                    className="w-full rounded-2xl border border-stone-300 bg-stone-50 px-4 py-3 outline-none transition focus:border-slate-900"
+                    className="w-full rounded-2xl border border-stone-400 bg-white px-4 py-3 text-slate-950 outline-none transition placeholder:text-slate-500 focus:border-slate-950"
                     placeholder="nom@barreau.fr"
                   />
                 </label>
 
                 <label className="block space-y-2">
-                  <span className="text-sm font-medium text-slate-700">
+                  <span className="text-sm font-semibold text-slate-800">
                     Mot de passe
                   </span>
                   <input
@@ -88,7 +88,7 @@ export default async function LoginPage({
                     name="password"
                     required
                     minLength={8}
-                    className="w-full rounded-2xl border border-stone-300 bg-stone-50 px-4 py-3 outline-none transition focus:border-slate-900"
+                    className="w-full rounded-2xl border border-stone-400 bg-white px-4 py-3 text-slate-950 outline-none transition placeholder:text-slate-500 focus:border-slate-950"
                     placeholder="8 caracteres minimum"
                   />
                 </label>
@@ -102,7 +102,7 @@ export default async function LoginPage({
               </form>
             </div>
 
-            <p className="mt-6 text-sm text-slate-600">
+            <p className="mt-6 text-sm text-slate-700">
               Pas encore de compte ?{" "}
               <Link href="/register" className="font-semibold text-slate-950">
                 Creer un acces

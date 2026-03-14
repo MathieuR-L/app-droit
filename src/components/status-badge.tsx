@@ -1,12 +1,12 @@
 import { cn } from "@/lib/utils";
 
 const styles = {
-  PENDING: "bg-amber-100 text-amber-900",
-  ACCEPTED: "bg-emerald-100 text-emerald-900",
-  UNANSWERED: "bg-rose-100 text-rose-900",
-  CLOSED: "bg-slate-200 text-slate-800",
-  DECLINED: "bg-rose-100 text-rose-900",
-  EXPIRED: "bg-orange-100 text-orange-900",
+  PENDING: "border border-amber-300 bg-amber-100 text-amber-950",
+  ACCEPTED: "border border-emerald-300 bg-emerald-100 text-emerald-950",
+  UNANSWERED: "border border-rose-300 bg-rose-100 text-rose-950",
+  CLOSED: "border border-slate-300 bg-slate-200 text-slate-900",
+  DECLINED: "border border-rose-300 bg-rose-100 text-rose-950",
+  EXPIRED: "border border-orange-300 bg-orange-100 text-orange-950",
 } as const;
 
 export function StatusBadge({
