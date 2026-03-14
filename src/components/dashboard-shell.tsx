@@ -19,22 +19,19 @@ type DashboardShellProps = {
 
 const accentMap = {
   blue: {
-    shell:
-      "from-slate-950 via-slate-900 to-sky-950 text-white ring-sky-300/40",
-    pill: "bg-sky-200/18 text-sky-50 ring-1 ring-inset ring-sky-100/40",
-    highlight: "text-sky-100",
+    shell: "from-slate-950 via-slate-900 to-sky-950 ring-sky-300/40",
+    pill: "bg-sky-100 text-sky-950 ring-1 ring-inset ring-sky-300/70",
+    highlight: "text-sky-900",
   },
   emerald: {
-    shell:
-      "from-stone-950 via-emerald-950 to-teal-950 text-white ring-emerald-300/40",
-    pill: "bg-emerald-200/18 text-emerald-50 ring-1 ring-inset ring-emerald-100/40",
-    highlight: "text-emerald-100",
+    shell: "from-stone-950 via-emerald-950 to-teal-950 ring-emerald-300/40",
+    pill: "bg-emerald-100 text-emerald-950 ring-1 ring-inset ring-emerald-300/70",
+    highlight: "text-emerald-900",
   },
   amber: {
-    shell:
-      "from-stone-950 via-amber-950 to-orange-950 text-white ring-amber-300/45",
-    pill: "bg-amber-100/18 text-amber-50 ring-1 ring-inset ring-amber-100/40",
-    highlight: "text-amber-50",
+    shell: "from-stone-950 via-amber-950 to-orange-950 ring-amber-300/45",
+    pill: "bg-amber-100 text-amber-950 ring-1 ring-inset ring-amber-300/70",
+    highlight: "text-amber-900",
   },
 } as const;
 
@@ -55,17 +52,17 @@ export function DashboardShell({
           palette.shell,
         )}
       >
-        <header className="border-b border-white/15 px-6 py-6 sm:px-10">
+        <header className="border-b border-stone-300 bg-[#f2ece3] px-6 py-6 text-slate-950 sm:px-10">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div className="space-y-3">
               <p className={cn("text-sm uppercase tracking-[0.35em]", palette.highlight)}>
                 Plateforme de permanence penale
               </p>
               <div className="space-y-2">
-                <h1 className="font-[family-name:var(--font-heading)] text-4xl leading-none sm:text-5xl">
+                <h1 className="font-[family-name:var(--font-heading)] text-4xl leading-none text-slate-950 sm:text-5xl">
                   {title}
                 </h1>
-                <p className="max-w-3xl text-sm text-white/88 sm:text-base">
+                <p className="max-w-3xl text-sm text-slate-800 sm:text-base">
                   {subtitle}
                 </p>
               </div>
@@ -77,15 +74,15 @@ export function DashboardShell({
                 {user.city ? ` • ${CITY_LABELS[user.city] ?? user.city}` : ""}
               </div>
 
-              <div className="rounded-3xl border border-white/20 bg-white/12 px-4 py-3 backdrop-blur-sm">
-                <p className="text-sm font-semibold text-white">{user.name}</p>
-                <p className="text-xs text-white/80">{user.email}</p>
+              <div className="rounded-3xl border border-stone-300 bg-white/90 px-4 py-3 backdrop-blur-sm">
+                <p className="text-sm font-semibold text-slate-950">{user.name}</p>
+                <p className="text-xs text-slate-700">{user.email}</p>
               </div>
 
               <form action={logoutAction}>
                 <button
                   type="submit"
-                  className="rounded-full border border-white/25 bg-white/8 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/14"
+                  className="rounded-full border border-stone-400 bg-white px-4 py-2 text-sm font-semibold text-slate-950 transition hover:border-slate-950 hover:bg-stone-100"
                 >
                   Se deconnecter
                 </button>
