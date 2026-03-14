@@ -62,6 +62,7 @@ Des utilisateurs supplementaires sont aussi seeds pour `Bobigny`, `Creteil` et `
 
 - `npm run dev`: mode developpement.
 - `npm run build`: build de production.
+- `npm run test`: tests unitaires du bootstrap Vercel et de l'authentification.
 - `npm run start`: lance le build.
 - `npm run lint`: verification ESLint.
 - `npm run db:migrate`: cree le schema SQLite local.
@@ -76,4 +77,5 @@ Des utilisateurs supplementaires sont aussi seeds pour `Bobigny`, `Creteil` et `
 - Les PDF sont stockes localement dans `storage/custody-records` et servis via une route authentifiee.
 - Si un PDF ne contient pas de texte exploitable, le document reste disponible et le resume indique qu'un OCR ou un LLM serait preferable.
 - En deployment Vercel, l'application copie `prisma/dev.db` vers `/tmp/app-droit.db` pour permettre une execution de demo sans base externe. Les donnees restent donc ephemeres et peuvent etre reinitialisees a tout moment.
+- `next.config.ts` force aussi l'inclusion de `prisma/dev.db` dans le bundle serveur pour eviter un 500 au runtime si le fichier n'est pas trace automatiquement.
 - Pour eviter un echec de connexion en production, ajoute au minimum `SESSION_SECRET` dans les variables d'environnement Vercel.

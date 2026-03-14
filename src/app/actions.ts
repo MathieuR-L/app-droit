@@ -25,6 +25,7 @@ import {
   requireUser,
   verifyPassword,
 } from "@/lib/auth";
+import { authenticateCredentials } from "@/lib/auth-service";
 import { ROLE_ROUTES } from "@/lib/constants";
 import {
   prepareCustodyRecordUpload,
@@ -63,27 +64,30 @@ export async function loginAction(formData: FormData) {
     redirectWithMessage("/login", "error", parsed.error.issues[0]?.message ?? "Connexion impossible.");
   }
 
+  let authenticationResult;
+
   try {
-    const user = await prisma.user.findUnique({
-      where: { email: parsed.data.email.toLowerCase() },
-    });
-
-    if (!user) {
-      redirectWithMessage("/login", "error", "Compte introuvable.");
-    }
-
-    const passwordIsValid = await verifyPassword(
-      parsed.data.password,
-      user.passwordHash,
+    authenticationResult = await authenticateCredentials(
+      {
+        email: parsed.data.email,
+        password: parsed.data.password,
+      },
+      {
+        findUserByEmail: async (email) =>
+          prisma.user.findUnique({
+            where: { email },
+            select: {
+              id: true,
+              email: true,
+              passwordHash: true,
+              role: true,
+            },
+          }),
+        verifyPassword,
+      },
     );
-
-    if (!passwordIsValid) {
-      redirectWithMessage("/login", "error", "Mot de passe incorrect.");
-    }
-
-    await createUserSession(user.id, user.role);
-    redirect(ROLE_ROUTES[user.role]);
   } catch (error) {
+    console.error("loginAction authentication failure", error);
     redirectWithMessage(
       "/login",
       "error",
@@ -92,6 +96,34 @@ export async function loginAction(formData: FormData) {
         : "Connexion impossible pour cause de configuration serveur.",
     );
   }
+
+  if (!authenticationResult.ok) {
+    redirectWithMessage(
+      "/login",
+      "error",
+      authenticationResult.reason === "not_found"
+        ? "Compte introuvable."
+        : "Mot de passe incorrect.",
+    );
+  }
+
+  try {
+    await createUserSession(
+      authenticationResult.user.id,
+      authenticationResult.user.role,
+    );
+  } catch (error) {
+    console.error("loginAction session creation failure", error);
+    redirectWithMessage(
+      "/login",
+      "error",
+      error instanceof Error
+        ? `Configuration serveur incomplete: ${error.message}`
+        : "Connexion impossible pour cause de configuration serveur.",
+    );
+  }
+
+  redirect(ROLE_ROUTES[authenticationResult.user.role]);
 }
 
 export async function registerAction(formData: FormData) {
@@ -119,6 +151,8 @@ export async function registerAction(formData: FormData) {
     );
   }
 
+  let user;
+
   try {
     const existingUser = await prisma.user.findUnique({
       where: { email: parsed.data.email.toLowerCase() },
@@ -133,7 +167,7 @@ export async function registerAction(formData: FormData) {
       );
     }
 
-    const user = await prisma.user.create({
+    user = await prisma.user.create({
       data: {
         name: parsed.data.name.trim(),
         email: parsed.data.email.toLowerCase(),
@@ -142,10 +176,8 @@ export async function registerAction(formData: FormData) {
         city: parsed.data.role === Role.POLICIER ? parsed.data.city : null,
       },
     });
-
-    await createUserSession(user.id, user.role);
-    redirect(ROLE_ROUTES[user.role]);
   } catch (error) {
+    console.error("registerAction persistence failure", error);
     redirectWithMessage(
       "/register",
       "error",
@@ -154,6 +186,21 @@ export async function registerAction(formData: FormData) {
         : "Inscription impossible pour cause de configuration serveur.",
     );
   }
+
+  try {
+    await createUserSession(user.id, user.role);
+  } catch (error) {
+    console.error("registerAction session creation failure", error);
+    redirectWithMessage(
+      "/register",
+      "error",
+      error instanceof Error
+        ? `Configuration serveur incomplete: ${error.message}`
+        : "Inscription impossible pour cause de configuration serveur.",
+    );
+  }
+
+  redirect(ROLE_ROUTES[user.role]);
 }
 
 export async function logoutAction() {
