@@ -15,7 +15,7 @@ export default async function Home() {
               Application juridique
             </p>
             <h1 className="font-[family-name:var(--font-heading)] text-4xl sm:text-5xl">
-              la gavance
+              GAVence
             </h1>
           </div>
 

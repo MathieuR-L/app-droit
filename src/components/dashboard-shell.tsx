@@ -56,7 +56,7 @@ export function DashboardShell({
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div className="space-y-3">
               <p className={cn("text-sm uppercase tracking-[0.35em]", palette.highlight)}>
-                Plateforme la gavance
+                Plateforme GAVence
               </p>
               <div className="space-y-2">
                 <h1 className="font-[family-name:var(--font-heading)] text-4xl leading-none text-slate-950 sm:text-5xl">

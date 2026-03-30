@@ -1,4 +1,4 @@
-# la gavance
+# GAVence
 
 Application web juridique pour gerer les gardes a vue entre trois profils:
 
