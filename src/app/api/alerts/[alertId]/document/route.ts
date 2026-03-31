@@ -4,6 +4,17 @@ import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { decodeCustodyRecordData, readCustodyRecordFile } from "@/lib/custody-records";
+import { isVercelDemoStorageMode } from "@/lib/runtime-database";
+
+function getVercelPersistenceError() {
+  return NextResponse.json(
+    {
+      error:
+        "Le document n'est pas disponible sur cette instance Vercel. Sans DATABASE_URL persistante, les gardes a vue et leurs PDF peuvent disparaitre entre deux requetes.",
+    },
+    { status: 503 },
+  );
+}
 
 export async function GET(
   _request: Request,
@@ -39,6 +50,10 @@ export async function GET(
   });
 
   if (!alert?.custodyRecordFileName) {
+    if (isVercelDemoStorageMode()) {
+      return getVercelPersistenceError();
+    }
+
     return NextResponse.json({ error: "Document introuvable." }, { status: 404 });
   }
 
@@ -61,6 +76,10 @@ export async function GET(
         : null);
 
     if (!file) {
+      if (isVercelDemoStorageMode()) {
+        return getVercelPersistenceError();
+      }
+
       return NextResponse.json({ error: "Document introuvable." }, { status: 404 });
     }
 

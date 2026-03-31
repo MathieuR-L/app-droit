@@ -6,6 +6,7 @@ import {
   ensureVercelSQLiteDatabase,
   getRuntimeDatabasePath,
   getSeedDatabasePath,
+  isVercelDemoStorageMode,
   resolveDatabaseUrl,
 } from "./runtime-database";
 
@@ -87,5 +88,16 @@ describe("runtime database bootstrap", () => {
     );
 
     vi.unstubAllEnvs();
+  });
+
+  it("detects the Vercel demo storage fallback", () => {
+    expect(isVercelDemoStorageMode({ VERCEL: "1" })).toBe(true);
+    expect(
+      isVercelDemoStorageMode({
+        VERCEL: "1",
+        DATABASE_URL: "postgresql://demo:demo@db.example.com:5432/app",
+      }),
+    ).toBe(false);
+    expect(isVercelDemoStorageMode({})).toBe(false);
   });
 });

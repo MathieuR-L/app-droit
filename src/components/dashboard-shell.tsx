@@ -2,6 +2,7 @@ import { City, Role } from "@prisma/client";
 
 import { logoutAction } from "@/app/actions";
 import { CITY_LABELS, ROLE_LABELS } from "@/lib/constants";
+import { isVercelDemoStorageMode } from "@/lib/runtime-database";
 import { cn } from "@/lib/utils";
 
 type DashboardShellProps = {
@@ -43,6 +44,7 @@ export function DashboardShell({
   children,
 }: DashboardShellProps) {
   const palette = accentMap[accent];
+  const showPersistenceWarning = isVercelDemoStorageMode();
 
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.22),_transparent_30%),linear-gradient(180deg,#f9f6ef_0%,#f2ece3_52%,#ece5da_100%)] px-4 py-6 sm:px-6 lg:px-10">
@@ -65,6 +67,13 @@ export function DashboardShell({
                 <p className="max-w-3xl text-sm text-slate-800 sm:text-base">
                   {subtitle}
                 </p>
+                {showPersistenceWarning ? (
+                  <p className="max-w-3xl rounded-2xl border border-amber-300 bg-amber-100/90 px-4 py-3 text-sm font-medium text-slate-950">
+                    Mode demo Vercel detecte: sans base persistante configuree,
+                    les gardes a vue et leurs PDF peuvent devenir introuvables
+                    entre deux requetes.
+                  </p>
+                ) : null}
               </div>
             </div>
 

@@ -79,5 +79,6 @@ Des utilisateurs supplementaires sont aussi seeds pour `Bobigny`, `Creteil` et `
 - Si un PDF ne contient pas de texte exploitable, le document reste disponible et le resume indique qu'un OCR ou un LLM serait preferable.
 - Si `GEMINI_API_KEY` est defini, l'application utilise aussi l'API Gemini pour produire un resume plus robuste du PDF original. La variable `GEMINI_MODEL` permet de choisir le modele, par defaut `gemini-2.5-flash`.
 - En deployment Vercel, l'application copie `prisma/dev.db` vers `/tmp/app-droit.db` pour permettre une execution de demo sans base externe. Les donnees restent donc ephemeres et peuvent etre reinitialisees a tout moment.
+- Cette SQLite de secours ne constitue pas un stockage persistant Vercel. Les gardes a vue, les reglages et les PDF peuvent devenir introuvables d'une requete a l'autre tant qu'une vraie `DATABASE_URL` persistante n'est pas configuree.
 - `next.config.ts` force aussi l'inclusion de `prisma/dev.db` dans le bundle serveur pour eviter un 500 au runtime si le fichier n'est pas trace automatiquement.
 - Si `SESSION_SECRET` n'est pas defini, l'application utilise automatiquement un secret de demonstration integre pour que les comptes demo restent utilisables. Un vrai `SESSION_SECRET` reste recommande pour une production serieuse.

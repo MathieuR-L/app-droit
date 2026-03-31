@@ -21,6 +21,12 @@ export function getRuntimeDatabasePath(tempDirectory = "/tmp") {
   return path.join(tempDirectory, "app-droit.db");
 }
 
+export function isVercelDemoStorageMode(
+  environment: NodeJS.ProcessEnv = process.env,
+) {
+  return Boolean(environment.VERCEL && !environment.DATABASE_URL);
+}
+
 export function ensureVercelSQLiteDatabase(options?: {
   rootDirectory?: string;
   tempDirectory?: string;
@@ -53,7 +59,7 @@ export function resolveDatabaseUrl() {
     return process.env.DATABASE_URL;
   }
 
-  if (process.env.VERCEL) {
+  if (isVercelDemoStorageMode()) {
     const runtimePath = ensureVercelSQLiteDatabase();
     return `file:${runtimePath}`;
   }

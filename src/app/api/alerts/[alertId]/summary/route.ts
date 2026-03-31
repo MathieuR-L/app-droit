@@ -8,6 +8,17 @@ import {
   getRenderableCustodyRecordSummary,
 } from "@/lib/custody-records";
 import { prisma } from "@/lib/prisma";
+import { isVercelDemoStorageMode } from "@/lib/runtime-database";
+
+function getVercelPersistenceError() {
+  return NextResponse.json(
+    {
+      error:
+        "Le resume n'est pas disponible sur cette instance Vercel. Sans DATABASE_URL persistante, les gardes a vue et leurs PDF peuvent disparaitre entre deux requetes.",
+    },
+    { status: 503 },
+  );
+}
 
 async function getAuthorizedAlertForSummary(alertId: string, userId: string, role: Role) {
   const alert = await prisma.custodyAlert.findUnique({
@@ -32,6 +43,12 @@ async function getAuthorizedAlertForSummary(alertId: string, userId: string, rol
   });
 
   if (!alert) {
+    if (isVercelDemoStorageMode()) {
+      return {
+        response: getVercelPersistenceError(),
+      };
+    }
+
     return {
       response: NextResponse.json({ error: "Alerte introuvable." }, { status: 404 }),
     };
