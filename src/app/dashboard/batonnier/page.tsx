@@ -11,6 +11,8 @@ import {
 } from "@/app/actions";
 import { AutoRefresh } from "@/components/auto-refresh";
 import { DashboardShell } from "@/components/dashboard-shell";
+import { DemoPendingDocumentSync } from "@/components/demo-pending-document-sync";
+import { DocumentSummaryCard } from "@/components/document-summary-card";
 import { FeedbackBanner } from "@/components/feedback-banner";
 import { NotificationsPanel } from "@/components/notifications-panel";
 import { SectionCard } from "@/components/section-card";
@@ -19,6 +21,7 @@ import { processEscalations } from "@/lib/alerts";
 import { requireRole } from "@/lib/auth";
 import { ALERT_STATUS_LABELS, CITY_LABELS, CITY_OPTIONS } from "@/lib/constants";
 import { prisma } from "@/lib/prisma";
+import { isVercelDemoStorageMode } from "@/lib/runtime-database";
 import { formatDateTime } from "@/lib/utils";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
@@ -38,6 +41,7 @@ export default async function BatonnierDashboardPage({
   const params = await searchParams;
   const error = getMessage(params.error);
   const success = getMessage(params.success);
+  const demoStorageMode = isVercelDemoStorageMode();
 
   const [lawyers, responseSettings, dutyAssignments, recentAlerts, notifications] =
     await Promise.all([
@@ -113,6 +117,14 @@ export default async function BatonnierDashboardPage({
       accent="amber"
     >
       <AutoRefresh intervalMs={20000} />
+      <DemoPendingDocumentSync
+        demoStorageMode={demoStorageMode}
+        alerts={recentAlerts.map((alert) => ({
+          id: alert.id,
+          fileName: alert.custodyRecordFileName,
+          uploadedAt: alert.custodyRecordUploadedAt?.toISOString() ?? null,
+        }))}
+      />
 
       <div className="space-y-4">
         <FeedbackBanner message={success} tone="success" />
@@ -335,7 +347,7 @@ export default async function BatonnierDashboardPage({
 
         <SectionCard
           title="Vue systeme des alertes"
-          description="Le batonnier peut verifier l'etat des sollicitations sur l'ensemble des villes."
+          description="Le batonnier peut verifier l'etat des sollicitations sur l'ensemble des villes et consulter les PDF joints."
         >
           <div className="grid gap-4 lg:grid-cols-2">
             {recentAlerts.length ? (
@@ -371,6 +383,14 @@ export default async function BatonnierDashboardPage({
                   <p className="mt-3 text-xs text-slate-500">
                     Creee le {formatDateTime(alert.createdAt)}
                   </p>
+                  <div className="mt-4">
+                    <DocumentSummaryCard
+                      alertId={alert.id}
+                      fileName={alert.custodyRecordFileName}
+                      pageCount={alert.custodyRecordPageCount}
+                      uploadedAt={alert.custodyRecordUploadedAt}
+                    />
+                  </div>
                 </article>
               ))
             ) : (

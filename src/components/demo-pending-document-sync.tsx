@@ -7,19 +7,17 @@ import { syncPendingDemoDocumentToAlerts, type DemoAlertCandidate } from "@/lib/
 export function DemoPendingDocumentSync({
   demoStorageMode,
   alerts,
-  successMessage,
 }: {
   demoStorageMode: boolean;
   alerts: DemoAlertCandidate[];
-  successMessage?: string | null;
 }) {
   useEffect(() => {
-    if (!demoStorageMode || !successMessage) {
+    if (!demoStorageMode || !alerts.length) {
       return;
     }
 
     syncPendingDemoDocumentToAlerts(alerts);
-  }, [alerts, demoStorageMode, successMessage]);
+  }, [alerts, demoStorageMode]);
 
   return null;
 }

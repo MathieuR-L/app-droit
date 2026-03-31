@@ -1,44 +1,26 @@
 import { FileText } from "lucide-react";
 
-import {
-  getCustodyRecordDownloadUrl,
-  getCustodyRecordSummaryState,
-  getRenderableCustodyRecordSummary,
-} from "@/lib/custody-records";
+import { getCustodyRecordDownloadUrl } from "@/lib/custody-records";
 import { isVercelDemoStorageMode } from "@/lib/runtime-database";
 import { formatDateTime } from "@/lib/utils";
 
 import { DocumentOpenButton } from "./document-open-button";
-import { DocumentSummaryLive } from "./document-summary-live";
 
 export function DocumentSummaryCard({
   alertId,
   fileName,
   pageCount,
   uploadedAt,
-  summary,
 }: {
   alertId: string;
   fileName?: string | null;
   pageCount?: number | null;
   uploadedAt?: Date | string | null;
-  summary?: string | null;
 }) {
   if (!fileName) {
     return null;
   }
-
-  const { canEnhanceWithGemini, pendingGeminiSummary, source } =
-    getCustodyRecordSummaryState({
-      fileName,
-      summary,
-    });
   const demoStorageMode = isVercelDemoStorageMode();
-
-  const initialSummary =
-    canEnhanceWithGemini && source !== "gemini"
-      ? null
-      : getRenderableCustodyRecordSummary(summary);
 
   return (
     <section className="rounded-[1.4rem] border border-sky-300 bg-sky-100/70 p-4">
@@ -61,15 +43,6 @@ export function DocumentSummaryCard({
           demoStorageMode={demoStorageMode}
         />
       </div>
-
-      <DocumentSummaryLive
-        alertId={alertId}
-        demoStorageMode={demoStorageMode}
-        summaryApiUrl={`/api/alerts/${alertId}/summary`}
-        initialSummary={initialSummary}
-        initialSource={source}
-        pendingGeminiSummary={canEnhanceWithGemini && pendingGeminiSummary}
-      />
     </section>
   );
 }

@@ -4,9 +4,6 @@ export const DEMO_LOCAL_DOCUMENT_LIMIT_BYTES = 3 * 1024 * 1024;
 
 const PENDING_DOCUMENT_KEY = "gavence.demo.pending-document";
 const DOCUMENTS_KEY = "gavence.demo.documents";
-const SUMMARIES_KEY = "gavence.demo.summaries";
-
-type SummarySource = "local" | "gemini";
 
 export type PendingDemoDocument = {
   fileName: string;
@@ -19,13 +16,6 @@ export type PendingDemoDocument = {
 export type StoredDemoDocument = PendingDemoDocument & {
   alertId: string;
   linkedAt: string;
-};
-
-export type StoredDemoSummary = {
-  alertId: string;
-  summary: string;
-  source: SummarySource;
-  updatedAt: string;
 };
 
 export type DemoAlertCandidate = {
@@ -106,14 +96,6 @@ function getStoredDocuments() {
 
 function setStoredDocuments(documents: Record<string, StoredDemoDocument>) {
   return writeJson(DOCUMENTS_KEY, documents);
-}
-
-function getStoredSummaries() {
-  return readJson<Record<string, StoredDemoSummary>>(SUMMARIES_KEY, {});
-}
-
-function setStoredSummaries(summaries: Record<string, StoredDemoSummary>) {
-  return writeJson(SUMMARIES_KEY, summaries);
 }
 
 export function formatDemoLocalStorageLimit() {
@@ -236,29 +218,4 @@ export function openDemoDocument(alertId: string) {
 
   window.open(document.dataUrl, "_blank", "noopener,noreferrer");
   return true;
-}
-
-export function storeDemoSummary(
-  alertId: string,
-  summary: string,
-  source: SummarySource,
-) {
-  if (!summary.trim()) {
-    return false;
-  }
-
-  const summaries = getStoredSummaries();
-  summaries[alertId] = {
-    alertId,
-    summary,
-    source,
-    updatedAt: new Date().toISOString(),
-  };
-
-  return setStoredSummaries(summaries);
-}
-
-export function getDemoSummary(alertId: string) {
-  const summaries = getStoredSummaries();
-  return summaries[alertId] ?? null;
 }

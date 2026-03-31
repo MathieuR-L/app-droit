@@ -84,7 +84,6 @@ export default async function PolicierDashboardPage({
       <AutoRefresh intervalMs={15000} />
       <DemoPendingDocumentSync
         demoStorageMode={demoStorageMode}
-        successMessage={success}
         alerts={alerts.map((alert) => ({
           id: alert.id,
           fileName: alert.custodyRecordFileName,
@@ -126,7 +125,7 @@ export default async function PolicierDashboardPage({
 
           <SectionCard
             title="Nouvelle garde a vue"
-            description="Le dossier est automatiquement envoye a l'avocat de permanence de la meme ville. Tu peux joindre un PDF qui sera envoye directement a Gemini Flash-Lite pour produire un resume dynamique."
+            description="Le dossier est automatiquement envoye a l'avocat de permanence de la meme ville. Tu peux joindre un PDF pour que l'avocat puisse le consulter directement."
           >
             <form
               action={createAlertAction}
@@ -225,7 +224,6 @@ export default async function PolicierDashboardPage({
                             fileName={alert.custodyRecordFileName}
                             pageCount={alert.custodyRecordPageCount}
                             uploadedAt={alert.custodyRecordUploadedAt}
-                            summary={alert.custodyRecordSummary}
                           />
                         </div>
 

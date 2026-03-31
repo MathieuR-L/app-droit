@@ -54,9 +54,8 @@ export function PolicierAlertFileFields({
           }}
         />
         <p className="text-xs leading-6 text-slate-700">
-          Format PDF uniquement. La page revient immediatement, puis Gemini
-          Flash-Lite analyse directement le document et fait apparaitre le
-          resume a mesure qu&apos;il le genere.
+          Format PDF uniquement. Le document sera joint a la garde a vue et
+          restera consultable directement depuis l&apos;application.
         </p>
         {demoStorageMode ? (
           <p className="text-xs leading-6 text-slate-700">

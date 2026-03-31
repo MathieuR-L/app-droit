@@ -1,19 +1,10 @@
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 
-import { isGeminiConfigured, streamPdfSummaryWithGemini } from "@/lib/gemini";
-import { prisma } from "@/lib/prisma";
-
 const MAX_PDF_SIZE_BYTES = 15 * 1024 * 1024;
 const STORAGE_DIRECTORY = process.env.VERCEL
   ? path.join("/tmp", "custody-records")
   : path.join(process.cwd(), "storage", "custody-records");
-
-const GEMINI_SUMMARY_PREFIX = "Resume Gemini Flash-Lite";
-
-const globalForCustodyRecordSummaries = globalThis as typeof globalThis & {
-  custodyRecordGeminiJobs?: Map<string, Promise<string | null>>;
-};
 
 export type PreparedCustodyRecord = {
   fileName: string;
@@ -26,14 +17,6 @@ export type PreparedCustodyRecord = {
   uploadedAt: Date;
 };
 
-type SummarySource = "local" | "gemini";
-
-type SummaryStateInput = {
-  extractedText?: string | null;
-  fileName?: string | null;
-  summary?: string | null;
-};
-
 function sanitizeFileName(fileName: string) {
   const baseName = fileName.trim().replace(/[^a-zA-Z0-9._-]+/g, "-");
 
@@ -42,18 +25,6 @@ function sanitizeFileName(fileName: string) {
   }
 
   return baseName || "garde-a-vue.pdf";
-}
-
-function getGeminiSummaryJobs() {
-  if (!globalForCustodyRecordSummaries.custodyRecordGeminiJobs) {
-    globalForCustodyRecordSummaries.custodyRecordGeminiJobs = new Map();
-  }
-
-  return globalForCustodyRecordSummaries.custodyRecordGeminiJobs;
-}
-
-function wrapGeminiSummary(summary: string) {
-  return `${GEMINI_SUMMARY_PREFIX}\n${summary.trim()}`;
 }
 
 function assertPdfSignature(buffer: Buffer) {
@@ -66,45 +37,6 @@ function assertPdfSignature(buffer: Buffer) {
 
 async function ensureStorageDirectory() {
   await mkdir(STORAGE_DIRECTORY, { recursive: true });
-}
-
-export function isGeminiSummary(summary?: string | null) {
-  return summary?.startsWith(`${GEMINI_SUMMARY_PREFIX}\n`) ?? false;
-}
-
-export function getRenderableCustodyRecordSummary(summary?: string | null) {
-  if (!summary) {
-    return null;
-  }
-
-  if (!isGeminiSummary(summary)) {
-    return summary;
-  }
-
-  return summary.slice(GEMINI_SUMMARY_PREFIX.length).trimStart();
-}
-
-export function getCustodyRecordSummaryState({
-  extractedText,
-  fileName,
-  summary,
-}: SummaryStateInput): {
-  canEnhanceWithGemini: boolean;
-  pendingGeminiSummary: boolean;
-  source: SummarySource;
-} {
-  const source: SummarySource = isGeminiSummary(summary) ? "gemini" : "local";
-  const canEnhanceWithGemini = Boolean(
-    isGeminiConfigured() &&
-      (fileName?.trim() || extractedText?.trim()) &&
-      source !== "gemini",
-  );
-
-  return {
-    canEnhanceWithGemini,
-    pendingGeminiSummary: canEnhanceWithGemini,
-    source,
-  };
 }
 
 export async function prepareCustodyRecordUpload(
@@ -143,112 +75,6 @@ export async function prepareCustodyRecordUpload(
     pageCount: null,
     uploadedAt: new Date(),
   };
-}
-
-export async function enhanceCustodyAlertSummary(
-  alertId: string,
-  options?: {
-    onChunk?: (chunk: string) => void;
-  },
-) {
-  const jobs = getGeminiSummaryJobs();
-  const existingJob = jobs.get(alertId);
-
-  if (existingJob) {
-    const existingSummary = await existingJob;
-
-    if (options?.onChunk) {
-      const renderableSummary = getRenderableCustodyRecordSummary(existingSummary);
-
-      if (renderableSummary) {
-        options.onChunk(renderableSummary);
-      }
-    }
-
-    return existingSummary;
-  }
-
-  const job = (async () => {
-    const alert = await prisma.custodyAlert.findUnique({
-      where: { id: alertId },
-      select: {
-        id: true,
-        custodyRecordData: true,
-        custodyRecordFileName: true,
-        custodyRecordMimeType: true,
-        custodyRecordStoredName: true,
-        custodyRecordSummary: true,
-      },
-    });
-
-    if (!alert?.custodyRecordFileName) {
-      return null;
-    }
-
-    if (isGeminiSummary(alert.custodyRecordSummary)) {
-      const renderableSummary = getRenderableCustodyRecordSummary(
-        alert.custodyRecordSummary,
-      );
-
-      if (renderableSummary && options?.onChunk) {
-        options.onChunk(renderableSummary);
-      }
-
-      return alert.custodyRecordSummary;
-    }
-
-    const { canEnhanceWithGemini } = getCustodyRecordSummaryState({
-      fileName: alert.custodyRecordFileName,
-      summary: alert.custodyRecordSummary,
-    });
-
-    if (!canEnhanceWithGemini) {
-      return alert.custodyRecordSummary;
-    }
-
-    const fileBuffer =
-      decodeCustodyRecordData(alert.custodyRecordData) ??
-      (alert.custodyRecordStoredName
-        ? await readCustodyRecordFile(alert.custodyRecordStoredName)
-        : null);
-
-    if (!fileBuffer) {
-      return alert.custodyRecordSummary;
-    }
-
-    let streamedSummary = "";
-
-    for await (const chunk of streamPdfSummaryWithGemini({
-      fileData: fileBuffer,
-      fileName: alert.custodyRecordFileName,
-      mimeType: alert.custodyRecordMimeType || "application/pdf",
-    })) {
-      streamedSummary += chunk;
-      options?.onChunk?.(chunk);
-    }
-
-    const normalizedSummary = streamedSummary.trim();
-
-    if (!normalizedSummary) {
-      return alert.custodyRecordSummary;
-    }
-
-    const storedSummary = wrapGeminiSummary(normalizedSummary);
-
-    await prisma.custodyAlert.update({
-      where: { id: alertId },
-      data: {
-        custodyRecordSummary: storedSummary,
-      },
-    });
-
-    return storedSummary;
-  })().finally(() => {
-    jobs.delete(alertId);
-  });
-
-  jobs.set(alertId, job);
-  return job;
 }
 
 export async function removeCustodyRecordFile(storedName?: string | null) {
