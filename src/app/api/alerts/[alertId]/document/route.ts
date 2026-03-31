@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { readCustodyRecordFile } from "@/lib/custody-records";
+import { decodeCustodyRecordData, readCustodyRecordFile } from "@/lib/custody-records";
 
 export async function GET(
   _request: Request,
@@ -24,6 +24,7 @@ export async function GET(
       currentLawyerId: true,
       acceptedLawyerId: true,
       custodyRecordFileName: true,
+      custodyRecordData: true,
       custodyRecordStoredName: true,
       assignments: {
         where: {
@@ -37,7 +38,7 @@ export async function GET(
     },
   });
 
-  if (!alert?.custodyRecordStoredName || !alert.custodyRecordFileName) {
+  if (!alert?.custodyRecordFileName) {
     return NextResponse.json({ error: "Document introuvable." }, { status: 404 });
   }
 
@@ -53,7 +54,15 @@ export async function GET(
   }
 
   try {
-    const file = await readCustodyRecordFile(alert.custodyRecordStoredName);
+    const file =
+      decodeCustodyRecordData(alert.custodyRecordData) ??
+      (alert.custodyRecordStoredName
+        ? await readCustodyRecordFile(alert.custodyRecordStoredName)
+        : null);
+
+    if (!file) {
+      return NextResponse.json({ error: "Document introuvable." }, { status: 404 });
+    }
 
     return new NextResponse(new Uint8Array(file), {
       headers: {

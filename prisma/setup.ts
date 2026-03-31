@@ -37,6 +37,7 @@ const statements = [
     "custodyRecordFileName" TEXT,
     "custodyRecordStoredName" TEXT,
     "custodyRecordMimeType" TEXT,
+    "custodyRecordData" BLOB,
     "custodyRecordExtract" TEXT,
     "custodyRecordSummary" TEXT,
     "custodyRecordPageCount" INTEGER,
@@ -123,6 +124,10 @@ const custodyAlertColumns = [
   {
     name: "custodyRecordMimeType",
     definition: `TEXT`,
+  },
+  {
+    name: "custodyRecordData",
+    definition: `BLOB`,
   },
   {
     name: "custodyRecordExtract",

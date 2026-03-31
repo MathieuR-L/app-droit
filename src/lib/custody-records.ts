@@ -19,6 +19,7 @@ export type PreparedCustodyRecord = {
   fileName: string;
   storedName: string;
   mimeType: string;
+  data: Buffer;
   extractedText: string | null;
   summary: string | null;
   pageCount: number | null;
@@ -136,6 +137,7 @@ export async function prepareCustodyRecordUpload(
     fileName: safeName,
     storedName,
     mimeType,
+    data: buffer,
     extractedText: null,
     summary: null,
     pageCount: null,
@@ -171,6 +173,7 @@ export async function enhanceCustodyAlertSummary(
       where: { id: alertId },
       select: {
         id: true,
+        custodyRecordData: true,
         custodyRecordFileName: true,
         custodyRecordMimeType: true,
         custodyRecordStoredName: true,
@@ -178,7 +181,7 @@ export async function enhanceCustodyAlertSummary(
       },
     });
 
-    if (!alert?.custodyRecordFileName || !alert.custodyRecordStoredName) {
+    if (!alert?.custodyRecordFileName) {
       return null;
     }
 
@@ -203,7 +206,16 @@ export async function enhanceCustodyAlertSummary(
       return alert.custodyRecordSummary;
     }
 
-    const fileBuffer = await readCustodyRecordFile(alert.custodyRecordStoredName);
+    const fileBuffer =
+      decodeCustodyRecordData(alert.custodyRecordData) ??
+      (alert.custodyRecordStoredName
+        ? await readCustodyRecordFile(alert.custodyRecordStoredName)
+        : null);
+
+    if (!fileBuffer) {
+      return alert.custodyRecordSummary;
+    }
+
     let streamedSummary = "";
 
     for await (const chunk of streamPdfSummaryWithGemini({
@@ -255,6 +267,14 @@ export function getCustodyRecordPath(storedName: string) {
 
 export async function readCustodyRecordFile(storedName: string) {
   return readFile(getCustodyRecordPath(storedName));
+}
+
+export function decodeCustodyRecordData(data?: Uint8Array | null) {
+  if (!data) {
+    return null;
+  }
+
+  return Buffer.from(data);
 }
 
 export function getCustodyRecordDownloadUrl(alertId: string) {

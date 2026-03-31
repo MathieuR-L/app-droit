@@ -274,6 +274,7 @@ export async function createCustodyAlert(input: {
     fileName: string;
     storedName: string;
     mimeType: string;
+    data: Buffer;
     extractedText: string | null;
     summary: string | null;
     pageCount: number | null;
@@ -309,6 +310,9 @@ export async function createCustodyAlert(input: {
         custodyRecordFileName: input.custodyRecord?.fileName ?? null,
         custodyRecordStoredName: input.custodyRecord?.storedName ?? null,
         custodyRecordMimeType: input.custodyRecord?.mimeType ?? null,
+        custodyRecordData: input.custodyRecord?.data
+          ? Uint8Array.from(input.custodyRecord.data)
+          : null,
         custodyRecordExtract: input.custodyRecord?.extractedText ?? null,
         custodyRecordSummary: input.custodyRecord?.summary ?? null,
         custodyRecordPageCount: input.custodyRecord?.pageCount ?? null,
