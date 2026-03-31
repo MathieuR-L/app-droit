@@ -4,9 +4,11 @@ import { unstable_noStore as noStore } from "next/cache";
 import { closeAlertAction, createAlertAction } from "@/app/actions";
 import { AutoRefresh } from "@/components/auto-refresh";
 import { DashboardShell } from "@/components/dashboard-shell";
+import { DemoPendingDocumentSync } from "@/components/demo-pending-document-sync";
 import { DocumentSummaryCard } from "@/components/document-summary-card";
 import { FeedbackBanner } from "@/components/feedback-banner";
 import { NotificationsPanel } from "@/components/notifications-panel";
+import { PolicierAlertFileFields } from "@/components/policier-alert-file-fields";
 import { SectionCard } from "@/components/section-card";
 import { StatusBadge } from "@/components/status-badge";
 import { processEscalations } from "@/lib/alerts";
@@ -17,6 +19,7 @@ import {
   CITY_LABELS,
 } from "@/lib/constants";
 import { prisma } from "@/lib/prisma";
+import { isVercelDemoStorageMode } from "@/lib/runtime-database";
 import { formatDateTime } from "@/lib/utils";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
@@ -36,6 +39,7 @@ export default async function PolicierDashboardPage({
   const params = await searchParams;
   const error = getMessage(params.error);
   const success = getMessage(params.success);
+  const demoStorageMode = isVercelDemoStorageMode();
 
   const [alerts, notifications] = await Promise.all([
     prisma.custodyAlert.findMany({
@@ -78,6 +82,15 @@ export default async function PolicierDashboardPage({
       accent="blue"
     >
       <AutoRefresh intervalMs={15000} />
+      <DemoPendingDocumentSync
+        demoStorageMode={demoStorageMode}
+        successMessage={success}
+        alerts={alerts.map((alert) => ({
+          id: alert.id,
+          fileName: alert.custodyRecordFileName,
+          uploadedAt: alert.custodyRecordUploadedAt?.toISOString() ?? null,
+        }))}
+      />
 
       <div className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
         <div className="space-y-4">
@@ -156,29 +169,7 @@ export default async function PolicierDashboardPage({
                 />
               </label>
 
-              <label className="block space-y-2 md:col-span-2">
-                <span className="text-sm font-semibold text-slate-800">
-                  PDF de garde a vue
-                </span>
-                <input
-                  type="file"
-                  name="custodyRecord"
-                  accept="application/pdf,.pdf"
-                  className="w-full rounded-2xl border border-dashed border-sky-500 bg-sky-50 px-4 py-3 text-sm font-medium text-slate-900 file:mr-4 file:rounded-full file:border-0 file:bg-slate-950 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-slate-800"
-                />
-                <p className="text-xs leading-6 text-slate-700">
-                  Format PDF uniquement. La page revient immediatement, puis Gemini
-                  Flash-Lite analyse directement le document et fait apparaitre le
-                  resume a mesure qu&apos;il le genere.
-                </p>
-              </label>
-
-              <button
-                type="submit"
-                className="md:col-span-2 rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold uppercase tracking-[0.24em] text-white transition hover:bg-slate-800"
-              >
-                Signaler la garde a vue
-              </button>
+              <PolicierAlertFileFields demoStorageMode={demoStorageMode} />
             </form>
           </SectionCard>
 

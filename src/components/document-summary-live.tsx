@@ -3,36 +3,47 @@
 import { LoaderCircle, Sparkles } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
+import { getDemoSummary, storeDemoSummary } from "@/lib/demo-browser-storage";
+
 type SummarySource = "local" | "gemini";
 
 export function DocumentSummaryLive({
+  alertId,
+  demoStorageMode,
   summaryApiUrl,
   initialSummary,
   initialSource,
   pendingGeminiSummary,
 }: {
+  alertId: string;
+  demoStorageMode: boolean;
   summaryApiUrl: string;
   initialSummary?: string | null;
   initialSource: SummarySource;
   pendingGeminiSummary: boolean;
 }) {
-  const [summary, setSummary] = useState(
-    pendingGeminiSummary && initialSource !== "gemini" ? "" : (initialSummary ?? ""),
-  );
+  const [summary, setSummary] = useState(initialSummary ?? "");
   const [source, setSource] = useState<SummarySource>(initialSource);
-  const [isLoading, setIsLoading] = useState(
-    pendingGeminiSummary && initialSource !== "gemini",
-  );
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    setSummary(
-      pendingGeminiSummary && initialSource !== "gemini"
-        ? ""
-        : (initialSummary ?? ""),
-    );
-    setSource(initialSource);
-    setIsLoading(pendingGeminiSummary && initialSource !== "gemini");
-  }, [initialSource, initialSummary, pendingGeminiSummary]);
+    const localSummary = demoStorageMode ? getDemoSummary(alertId) : null;
+    const resolvedSummary = initialSummary ?? localSummary?.summary ?? "";
+    const resolvedSource = initialSummary ? initialSource : (localSummary?.source ?? initialSource);
+    const shouldStream = pendingGeminiSummary && resolvedSource !== "gemini";
+
+    setSummary(shouldStream ? "" : resolvedSummary);
+    setSource(resolvedSource);
+    setIsLoading(shouldStream);
+  }, [alertId, demoStorageMode, initialSource, initialSummary, pendingGeminiSummary]);
+
+  useEffect(() => {
+    if (!demoStorageMode || !initialSummary?.trim()) {
+      return;
+    }
+
+    storeDemoSummary(alertId, initialSummary, initialSource);
+  }, [alertId, demoStorageMode, initialSource, initialSummary]);
 
   useEffect(() => {
     if (!pendingGeminiSummary || initialSource === "gemini") {
@@ -50,7 +61,18 @@ export function DocumentSummaryLive({
           signal: controller.signal,
         });
 
-        if (!response.ok || cancelled) {
+        if (cancelled) {
+          return;
+        }
+
+        if (!response.ok) {
+          const localSummary = demoStorageMode ? getDemoSummary(alertId) : null;
+
+          if (localSummary) {
+            setSummary(localSummary.summary);
+            setSource(localSummary.source);
+          }
+
           return;
         }
 
@@ -59,7 +81,11 @@ export function DocumentSummaryLive({
 
           if (!cancelled) {
             setSummary(text);
-            setSource("gemini");
+            setSource(text.startsWith("Gemini n'a") ? "local" : "gemini");
+
+            if (!text.startsWith("Gemini n'a")) {
+              storeDemoSummary(alertId, text, "gemini");
+            }
           }
 
           return;
@@ -89,6 +115,7 @@ export function DocumentSummaryLive({
 
           if (!streamedSummary.startsWith("Gemini n'a")) {
             setSource("gemini");
+            storeDemoSummary(alertId, streamedSummary, "gemini");
           }
         }
       } finally {
@@ -104,7 +131,7 @@ export function DocumentSummaryLive({
       cancelled = true;
       controller.abort();
     };
-  }, [initialSource, pendingGeminiSummary, summaryApiUrl]);
+  }, [alertId, demoStorageMode, initialSource, pendingGeminiSummary, summaryApiUrl]);
 
   const footnote = useMemo(() => {
     if (pendingGeminiSummary && isLoading) {

@@ -1,13 +1,14 @@
-import Link from "next/link";
-import { Download, FileText } from "lucide-react";
+import { FileText } from "lucide-react";
 
 import {
   getCustodyRecordDownloadUrl,
   getCustodyRecordSummaryState,
   getRenderableCustodyRecordSummary,
 } from "@/lib/custody-records";
+import { isVercelDemoStorageMode } from "@/lib/runtime-database";
 import { formatDateTime } from "@/lib/utils";
 
+import { DocumentOpenButton } from "./document-open-button";
 import { DocumentSummaryLive } from "./document-summary-live";
 
 export function DocumentSummaryCard({
@@ -32,6 +33,7 @@ export function DocumentSummaryCard({
       fileName,
       summary,
     });
+  const demoStorageMode = isVercelDemoStorageMode();
 
   const initialSummary =
     canEnhanceWithGemini && source !== "gemini"
@@ -53,17 +55,16 @@ export function DocumentSummaryCard({
           </p>
         </div>
 
-        <Link
-          href={getCustodyRecordDownloadUrl(alertId)}
-          target="_blank"
-          className="inline-flex items-center gap-2 rounded-full border border-slate-900 bg-white px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-slate-950 hover:text-white"
-        >
-          <Download className="h-4 w-4" />
-          Ouvrir le PDF
-        </Link>
+        <DocumentOpenButton
+          alertId={alertId}
+          downloadUrl={getCustodyRecordDownloadUrl(alertId)}
+          demoStorageMode={demoStorageMode}
+        />
       </div>
 
       <DocumentSummaryLive
+        alertId={alertId}
+        demoStorageMode={demoStorageMode}
         summaryApiUrl={`/api/alerts/${alertId}/summary`}
         initialSummary={initialSummary}
         initialSource={source}

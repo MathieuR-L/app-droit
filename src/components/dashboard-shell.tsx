@@ -69,9 +69,10 @@ export function DashboardShell({
                 </p>
                 {showPersistenceWarning ? (
                   <p className="max-w-3xl rounded-2xl border border-amber-300 bg-amber-100/90 px-4 py-3 text-sm font-medium text-slate-950">
-                    Mode demo Vercel detecte: sans base persistante configuree,
-                    les gardes a vue et leurs PDF peuvent devenir introuvables
-                    entre deux requetes.
+                    Mode demo Vercel detecte: les PDF et resumes recents sont
+                    sauvegardes aussi dans ce navigateur quand c&apos;est
+                    possible, mais les alertes et reglages restent ephemeres
+                    sans base persistante configuree.
                   </p>
                 ) : null}
               </div>
