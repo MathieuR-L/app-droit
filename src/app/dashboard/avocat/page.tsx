@@ -17,12 +17,21 @@ import {
   CITY_LABELS,
 } from "@/lib/constants";
 import { prisma } from "@/lib/prisma";
-import { formatDateTime } from "@/lib/utils";
+import { formatDateTime, formatRelativeMinutes } from "@/lib/utils";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
 function getMessage(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
+}
+
+function getResponseWindowLabel(notifiedAt: Date, responseDeadline: Date) {
+  const minutes = Math.max(
+    1,
+    Math.round((responseDeadline.getTime() - notifiedAt.getTime()) / 60_000),
+  );
+
+  return formatRelativeMinutes(minutes);
 }
 
 export default async function AvocatDashboardPage({
@@ -162,7 +171,7 @@ export default async function AvocatDashboardPage({
           ) : (
             <SectionCard
               title="Alertes actives"
-              description="Chaque demande affiche l'heure limite. Si tu ne reponds pas, elle est transmise automatiquement a l'avocat suivant. Lorsqu'un PDF est joint, un resume automatique local apparait ici."
+              description="Chaque demande affiche l'heure limite. Si tu ne reponds pas, elle est transmise automatiquement a l'avocat suivant. Lorsqu'un PDF est joint, un resume local apparait ici puis Gemini Flash-Lite l'affine automatiquement."
             >
               <div className="space-y-4">
                 {pendingAssignments.length ? (
@@ -190,6 +199,15 @@ export default async function AvocatDashboardPage({
                           <p className="text-sm leading-6 text-slate-700">
                             Echeance: <strong>{formatDateTime(assignment.responseDeadline)}</strong>
                           </p>
+                          <p className="text-sm leading-6 text-slate-700">
+                            Delai applique:{" "}
+                            <strong>
+                              {getResponseWindowLabel(
+                                assignment.notifiedAt,
+                                assignment.responseDeadline,
+                              )}
+                            </strong>
+                          </p>
                           {assignment.alert.notes ? (
                             <p className="rounded-2xl border border-stone-200 bg-white px-4 py-3 text-sm leading-6 text-slate-800">
                               {assignment.alert.notes}
@@ -197,6 +215,7 @@ export default async function AvocatDashboardPage({
                           ) : null}
                           <DocumentSummaryCard
                             alertId={assignment.alert.id}
+                            extractedText={assignment.alert.custodyRecordExtract}
                             fileName={assignment.alert.custodyRecordFileName}
                             pageCount={assignment.alert.custodyRecordPageCount}
                             uploadedAt={assignment.alert.custodyRecordUploadedAt}
@@ -266,6 +285,7 @@ export default async function AvocatDashboardPage({
                     <div className="mt-4">
                       <DocumentSummaryCard
                         alertId={alert.id}
+                        extractedText={alert.custodyRecordExtract}
                         fileName={alert.custodyRecordFileName}
                         pageCount={alert.custodyRecordPageCount}
                         uploadedAt={alert.custodyRecordUploadedAt}

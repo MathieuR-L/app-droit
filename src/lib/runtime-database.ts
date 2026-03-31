@@ -49,14 +49,14 @@ export function ensureVercelSQLiteDatabase(options?: {
 }
 
 export function resolveDatabaseUrl() {
+  if (process.env.DATABASE_URL) {
+    return process.env.DATABASE_URL;
+  }
+
   if (process.env.VERCEL) {
     const runtimePath = ensureVercelSQLiteDatabase();
     return `file:${runtimePath}`;
   }
 
-  if (!process.env.DATABASE_URL) {
-    throw new Error("DATABASE_URL is not configured.");
-  }
-
-  return process.env.DATABASE_URL;
+  throw new Error("DATABASE_URL is not configured.");
 }

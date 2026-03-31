@@ -113,7 +113,7 @@ export default async function PolicierDashboardPage({
 
           <SectionCard
             title="Nouvelle garde a vue"
-            description="Le dossier est automatiquement envoye a l'avocat de permanence de la meme ville. Tu peux joindre un PDF pour qu'un resume local soit prepare pour l'avocat."
+            description="Le dossier est automatiquement envoye a l'avocat de permanence de la meme ville. Tu peux joindre un PDF pour qu'un resume local soit prepare tout de suite, puis affine par Gemini Flash-Lite si la cle API est configuree."
           >
             <form
               action={createAlertAction}
@@ -168,7 +168,8 @@ export default async function PolicierDashboardPage({
                 />
                 <p className="text-xs leading-6 text-slate-700">
                   Format PDF uniquement. Le texte est extrait localement pour produire
-                  un resume sans cle API quand cela est possible.
+                  un resume immediat, puis Gemini Flash-Lite peut le remplacer
+                  automatiquement des qu&apos;il est disponible.
                 </p>
               </label>
 
@@ -230,6 +231,7 @@ export default async function PolicierDashboardPage({
                           ) : null}
                           <DocumentSummaryCard
                             alertId={alert.id}
+                            extractedText={alert.custodyRecordExtract}
                             fileName={alert.custodyRecordFileName}
                             pageCount={alert.custodyRecordPageCount}
                             uploadedAt={alert.custodyRecordUploadedAt}

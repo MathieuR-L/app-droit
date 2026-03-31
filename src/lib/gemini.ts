@@ -20,11 +20,15 @@ type GeminiTextSummaryOptions = {
 };
 
 const GEMINI_BASE_URL = "https://generativelanguage.googleapis.com";
-const DEFAULT_GEMINI_MODEL = "gemini-2.5-flash";
+export const DEFAULT_GEMINI_MODEL = "gemini-2.5-flash-lite";
 const DEFAULT_GEMINI_TIMEOUT_MS = 8000;
 
-function readGeminiApiKey() {
+export function readGeminiApiKey() {
   return process.env.GEMINI_API_KEY?.trim() || "";
+}
+
+export function isGeminiConfigured() {
+  return Boolean(readGeminiApiKey());
 }
 
 function buildSummaryPrompt(fileName: string, sourceText: string) {

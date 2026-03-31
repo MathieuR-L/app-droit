@@ -1,6 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { generateTextSummaryWithGemini } from "./gemini";
+import {
+  DEFAULT_GEMINI_MODEL,
+  generateTextSummaryWithGemini,
+} from "./gemini";
 
 describe("generateTextSummaryWithGemini", () => {
   it("returns null when no api key is configured", async () => {
@@ -48,5 +51,34 @@ describe("generateTextSummaryWithGemini", () => {
 
     expect(result).toBe("Resume Gemini du PDF");
     expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("uses Flash-Lite as the default model", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: vi.fn(async () => ({
+        candidates: [
+          {
+            content: {
+              parts: [{ text: "Resume Gemini du PDF" }],
+            },
+          },
+        ],
+      })),
+    });
+
+    await generateTextSummaryWithGemini({
+      apiKey: "test-key",
+      fileName: "garde-a-vue.pdf",
+      sourceText: "Texte extrait du document",
+      fetchImplementation: fetchMock as unknown as typeof fetch,
+      model: undefined,
+    });
+
+    expect(DEFAULT_GEMINI_MODEL).toBe("gemini-2.5-flash-lite");
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.stringContaining(`/v1beta/models/${DEFAULT_GEMINI_MODEL}:generateContent`),
+      expect.any(Object),
+    );
   });
 });

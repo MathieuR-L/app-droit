@@ -1,8 +1,13 @@
 import Link from "next/link";
 import { Download, FileText } from "lucide-react";
 
-import { getCustodyRecordDownloadUrl } from "@/lib/custody-records";
+import {
+  getCustodyRecordDownloadUrl,
+  getCustodyRecordSummaryState,
+} from "@/lib/custody-records";
 import { formatDateTime } from "@/lib/utils";
+
+import { DocumentSummaryLive } from "./document-summary-live";
 
 export function DocumentSummaryCard({
   alertId,
@@ -10,16 +15,24 @@ export function DocumentSummaryCard({
   pageCount,
   uploadedAt,
   summary,
+  extractedText,
 }: {
   alertId: string;
   fileName?: string | null;
   pageCount?: number | null;
   uploadedAt?: Date | string | null;
   summary?: string | null;
+  extractedText?: string | null;
 }) {
   if (!fileName) {
     return null;
   }
+
+  const { canEnhanceWithGemini, pendingGeminiSummary, source } =
+    getCustodyRecordSummaryState({
+      extractedText,
+      summary,
+    });
 
   return (
     <section className="rounded-[1.4rem] border border-sky-300 bg-sky-100/70 p-4">
@@ -46,19 +59,12 @@ export function DocumentSummaryCard({
         </Link>
       </div>
 
-      <div className="mt-4 rounded-[1.2rem] border border-white bg-white px-4 py-4">
-        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-700">
-          Resume automatique
-        </p>
-        <p className="mt-3 whitespace-pre-line text-sm leading-7 text-slate-900">
-          {summary ||
-            "Aucun resume automatique n'est disponible pour ce document."}
-        </p>
-        <p className="mt-3 text-xs leading-6 text-slate-700">
-          Ce resume est genere localement a partir du texte extrait du PDF. Il doit
-          etre verifie avec le document original avant usage.
-        </p>
-      </div>
+      <DocumentSummaryLive
+        summaryApiUrl={`/api/alerts/${alertId}/summary`}
+        initialSummary={summary}
+        initialSource={source}
+        pendingGeminiSummary={canEnhanceWithGemini && pendingGeminiSummary}
+      />
     </section>
   );
 }

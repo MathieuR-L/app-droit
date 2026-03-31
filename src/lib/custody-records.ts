@@ -1,7 +1,8 @@
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 
-import { generateTextSummaryWithGemini } from "@/lib/gemini";
+import { generateTextSummaryWithGemini, isGeminiConfigured } from "@/lib/gemini";
+import { prisma } from "@/lib/prisma";
 
 const MAX_PDF_SIZE_BYTES = 15 * 1024 * 1024;
 const STORAGE_DIRECTORY = process.env.VERCEL
@@ -103,6 +104,19 @@ export type PreparedCustodyRecord = {
   uploadedAt: Date;
 };
 
+type SummarySource = "local" | "gemini";
+
+type SummaryStateInput = {
+  extractedText?: string | null;
+  summary?: string | null;
+};
+
+const GEMINI_SUMMARY_PREFIX = "Resume Gemini Flash-Lite";
+
+const globalForCustodyRecordSummaries = globalThis as typeof globalThis & {
+  custodyRecordGeminiJobs?: Map<string, Promise<string | null>>;
+};
+
 function sanitizeFileName(fileName: string) {
   const baseName = fileName.trim().replace(/[^a-zA-Z0-9._-]+/g, "-");
 
@@ -111,6 +125,14 @@ function sanitizeFileName(fileName: string) {
   }
 
   return baseName || "garde-a-vue.pdf";
+}
+
+function getGeminiSummaryJobs() {
+  if (!globalForCustodyRecordSummaries.custodyRecordGeminiJobs) {
+    globalForCustodyRecordSummaries.custodyRecordGeminiJobs = new Map();
+  }
+
+  return globalForCustodyRecordSummaries.custodyRecordGeminiJobs;
 }
 
 function cleanExtractedText(text: string) {
@@ -189,6 +211,36 @@ function buildSummary(text: string, pageCount: number | null) {
   ].join("\n");
 }
 
+function wrapGeminiSummary(summary: string) {
+  return `${GEMINI_SUMMARY_PREFIX}\n${summary.trim()}`;
+}
+
+export function isGeminiSummary(summary?: string | null) {
+  return summary?.startsWith(`${GEMINI_SUMMARY_PREFIX}\n`) ?? false;
+}
+
+export function getCustodyRecordSummaryState({
+  extractedText,
+  summary,
+}: SummaryStateInput): {
+  canEnhanceWithGemini: boolean;
+  pendingGeminiSummary: boolean;
+  source: SummarySource;
+} {
+  const source: SummarySource = isGeminiSummary(summary) ? "gemini" : "local";
+  const canEnhanceWithGemini = Boolean(
+    isGeminiConfigured() &&
+      extractedText?.trim() &&
+      source !== "gemini",
+  );
+
+  return {
+    canEnhanceWithGemini,
+    pendingGeminiSummary: canEnhanceWithGemini,
+    source,
+  };
+}
+
 async function ensureStorageDirectory() {
   await mkdir(STORAGE_DIRECTORY, { recursive: true });
 }
@@ -255,17 +307,6 @@ export async function prepareCustodyRecordUpload(
       "Le PDF a bien ete joint, mais l'extraction automatique du texte a echoue. Le document original reste disponible pour lecture et un OCR ou un LLM pourra etre ajoute ensuite si besoin.";
   }
 
-  const geminiSummary = text
-    ? await generateTextSummaryWithGemini({
-        fileName: safeName,
-        sourceText: text,
-      })
-    : null;
-
-  if (geminiSummary) {
-    summary = `Resume Gemini\n${geminiSummary}`;
-  }
-
   const storedName = `${crypto.randomUUID()}.pdf`;
 
   await ensureStorageDirectory();
@@ -280,6 +321,65 @@ export async function prepareCustodyRecordUpload(
     pageCount,
     uploadedAt: new Date(),
   };
+}
+
+export async function enhanceCustodyAlertSummary(alertId: string) {
+  const jobs = getGeminiSummaryJobs();
+  const existingJob = jobs.get(alertId);
+
+  if (existingJob) {
+    return existingJob;
+  }
+
+  const job = (async () => {
+    const alert = await prisma.custodyAlert.findUnique({
+      where: { id: alertId },
+      select: {
+        id: true,
+        custodyRecordExtract: true,
+        custodyRecordFileName: true,
+        custodyRecordSummary: true,
+      },
+    });
+
+    if (!alert?.custodyRecordFileName) {
+      return null;
+    }
+
+    const { canEnhanceWithGemini } = getCustodyRecordSummaryState({
+      extractedText: alert.custodyRecordExtract,
+      summary: alert.custodyRecordSummary,
+    });
+
+    if (!canEnhanceWithGemini) {
+      return alert.custodyRecordSummary;
+    }
+
+    const geminiSummary = await generateTextSummaryWithGemini({
+      fileName: alert.custodyRecordFileName,
+      sourceText: alert.custodyRecordExtract ?? "",
+    });
+
+    if (!geminiSummary) {
+      return alert.custodyRecordSummary;
+    }
+
+    const nextSummary = wrapGeminiSummary(geminiSummary);
+
+    await prisma.custodyAlert.update({
+      where: { id: alertId },
+      data: {
+        custodyRecordSummary: nextSummary,
+      },
+    });
+
+    return nextSummary;
+  })().finally(() => {
+    jobs.delete(alertId);
+  });
+
+  jobs.set(alertId, job);
+  return job;
 }
 
 export async function removeCustodyRecordFile(storedName?: string | null) {

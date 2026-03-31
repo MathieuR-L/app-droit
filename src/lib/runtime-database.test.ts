@@ -6,6 +6,7 @@ import {
   ensureVercelSQLiteDatabase,
   getRuntimeDatabasePath,
   getSeedDatabasePath,
+  resolveDatabaseUrl,
 } from "./runtime-database";
 
 describe("runtime database bootstrap", () => {
@@ -75,5 +76,16 @@ describe("runtime database bootstrap", () => {
     expect(getRuntimeDatabasePath("/tmp-test")).toBe(
       path.join("/tmp-test", "app-droit.db"),
     );
+  });
+
+  it("prefers DATABASE_URL over the Vercel SQLite fallback", () => {
+    vi.stubEnv("VERCEL", "1");
+    vi.stubEnv("DATABASE_URL", "postgresql://demo:demo@db.example.com:5432/app");
+
+    expect(resolveDatabaseUrl()).toBe(
+      "postgresql://demo:demo@db.example.com:5432/app",
+    );
+
+    vi.unstubAllEnvs();
   });
 });
