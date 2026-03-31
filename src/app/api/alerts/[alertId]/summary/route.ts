@@ -5,6 +5,7 @@ import { getCurrentUser } from "@/lib/auth";
 import {
   enhanceCustodyAlertSummary,
   getCustodyRecordSummaryState,
+  getRenderableCustodyRecordSummary,
 } from "@/lib/custody-records";
 import { prisma } from "@/lib/prisma";
 
@@ -16,8 +17,8 @@ async function getAuthorizedAlertForSummary(alertId: string, userId: string, rol
       policeOfficerId: true,
       currentLawyerId: true,
       acceptedLawyerId: true,
+      custodyRecordFileName: true,
       custodyRecordSummary: true,
-      custodyRecordExtract: true,
       assignments: {
         where: {
           lawyerId: userId,
@@ -70,14 +71,14 @@ export async function GET(
   }
 
   const summaryState = getCustodyRecordSummaryState({
-    extractedText: result.alert.custodyRecordExtract,
+    fileName: result.alert.custodyRecordFileName,
     summary: result.alert.custodyRecordSummary,
   });
 
   return NextResponse.json({
     pendingGeminiSummary: summaryState.pendingGeminiSummary,
     source: summaryState.source,
-    summary: result.alert.custodyRecordSummary,
+    summary: getRenderableCustodyRecordSummary(result.alert.custodyRecordSummary),
   });
 }
 
@@ -98,15 +99,57 @@ export async function POST(
     return result.response;
   }
 
-  const summary = await enhanceCustodyAlertSummary(alertId);
+  const encoder = new TextEncoder();
   const summaryState = getCustodyRecordSummaryState({
-    extractedText: result.alert.custodyRecordExtract,
-    summary: summary ?? result.alert.custodyRecordSummary,
+    fileName: result.alert.custodyRecordFileName,
+    summary: result.alert.custodyRecordSummary,
   });
 
-  return NextResponse.json({
-    pendingGeminiSummary: summaryState.pendingGeminiSummary,
-    source: summaryState.source,
-    summary: summary ?? result.alert.custodyRecordSummary,
+  const stream = new ReadableStream<Uint8Array>({
+    async start(controller) {
+      let streamedAnyChunk = false;
+
+      try {
+        const existingSummary = getRenderableCustodyRecordSummary(
+          result.alert.custodyRecordSummary,
+        );
+
+        if (existingSummary && !summaryState.canEnhanceWithGemini) {
+          controller.enqueue(encoder.encode(existingSummary));
+          return;
+        }
+
+        await enhanceCustodyAlertSummary(alertId, {
+          onChunk: (chunk) => {
+            streamedAnyChunk = true;
+            controller.enqueue(encoder.encode(chunk));
+          },
+        });
+
+        if (!streamedAnyChunk) {
+          controller.enqueue(
+            encoder.encode(
+              "Gemini n'a pas encore pu produire de resume. Le PDF original reste disponible.",
+            ),
+          );
+        }
+      } catch (error) {
+        console.error("Gemini PDF summary streaming failed", error);
+        controller.enqueue(
+          encoder.encode(
+            "Gemini n'a pas pu produire de resume pour l'instant. Le PDF original reste disponible.",
+          ),
+        );
+      } finally {
+        controller.close();
+      }
+    },
+  });
+
+  return new NextResponse(stream, {
+    headers: {
+      "Cache-Control": "private, no-store",
+      "Content-Type": "text/plain; charset=utf-8",
+    },
   });
 }

@@ -171,7 +171,7 @@ export default async function AvocatDashboardPage({
           ) : (
             <SectionCard
               title="Alertes actives"
-              description="Chaque demande affiche l'heure limite. Si tu ne reponds pas, elle est transmise automatiquement a l'avocat suivant. Lorsqu'un PDF est joint, un resume local apparait ici puis Gemini Flash-Lite l'affine automatiquement."
+              description="Chaque demande affiche l'heure limite. Si tu ne reponds pas, elle est transmise automatiquement a l'avocat suivant. Lorsqu'un PDF est joint, Gemini Flash-Lite analyse directement le document et le resume s'ecrit ici en direct."
             >
               <div className="space-y-4">
                 {pendingAssignments.length ? (
@@ -215,7 +215,6 @@ export default async function AvocatDashboardPage({
                           ) : null}
                           <DocumentSummaryCard
                             alertId={assignment.alert.id}
-                            extractedText={assignment.alert.custodyRecordExtract}
                             fileName={assignment.alert.custodyRecordFileName}
                             pageCount={assignment.alert.custodyRecordPageCount}
                             uploadedAt={assignment.alert.custodyRecordUploadedAt}
@@ -285,7 +284,6 @@ export default async function AvocatDashboardPage({
                     <div className="mt-4">
                       <DocumentSummaryCard
                         alertId={alert.id}
-                        extractedText={alert.custodyRecordExtract}
                         fileName={alert.custodyRecordFileName}
                         pageCount={alert.custodyRecordPageCount}
                         uploadedAt={alert.custodyRecordUploadedAt}

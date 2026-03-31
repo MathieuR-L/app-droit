@@ -16,14 +16,20 @@ export function DocumentSummaryLive({
   initialSource: SummarySource;
   pendingGeminiSummary: boolean;
 }) {
-  const [summary, setSummary] = useState(initialSummary ?? "");
+  const [summary, setSummary] = useState(
+    pendingGeminiSummary && initialSource !== "gemini" ? "" : (initialSummary ?? ""),
+  );
   const [source, setSource] = useState<SummarySource>(initialSource);
   const [isLoading, setIsLoading] = useState(
     pendingGeminiSummary && initialSource !== "gemini",
   );
 
   useEffect(() => {
-    setSummary(initialSummary ?? "");
+    setSummary(
+      pendingGeminiSummary && initialSource !== "gemini"
+        ? ""
+        : (initialSummary ?? ""),
+    );
     setSource(initialSource);
     setIsLoading(pendingGeminiSummary && initialSource !== "gemini");
   }, [initialSource, initialSummary, pendingGeminiSummary]);
@@ -41,9 +47,6 @@ export function DocumentSummaryLive({
         const response = await fetch(summaryApiUrl, {
           method: "POST",
           cache: "no-store",
-          headers: {
-            Accept: "application/json",
-          },
           signal: controller.signal,
         });
 
@@ -51,21 +54,42 @@ export function DocumentSummaryLive({
           return;
         }
 
-        const payload = (await response.json()) as {
-          source?: SummarySource;
-          summary?: string | null;
-        };
+        if (!response.body) {
+          const text = await response.text();
 
-        if (cancelled) {
+          if (!cancelled) {
+            setSummary(text);
+            setSource("gemini");
+          }
+
           return;
         }
 
-        if (typeof payload.summary === "string") {
-          setSummary(payload.summary);
-        }
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let streamedSummary = "";
 
-        if (payload.source === "gemini") {
-          setSource("gemini");
+        while (!cancelled) {
+          const { done, value } = await reader.read();
+
+          if (done) {
+            break;
+          }
+
+          const chunk = decoder.decode(value ?? new Uint8Array(), {
+            stream: true,
+          });
+
+          if (!chunk) {
+            continue;
+          }
+
+          streamedSummary += chunk;
+          setSummary(streamedSummary);
+
+          if (!streamedSummary.startsWith("Gemini n'a")) {
+            setSource("gemini");
+          }
         }
       } finally {
         if (!cancelled) {
@@ -83,22 +107,27 @@ export function DocumentSummaryLive({
   }, [initialSource, pendingGeminiSummary, summaryApiUrl]);
 
   const footnote = useMemo(() => {
-    if (source === "gemini") {
-      return "Ce resume a ete affine par Gemini Flash-Lite a partir du texte extrait du PDF. Il doit etre verifie avec le document original avant usage.";
-    }
-
     if (pendingGeminiSummary && isLoading) {
-      return "Le resume local est deja disponible. Gemini Flash-Lite prepare une version plus concise et la carte se mettra a jour automatiquement.";
+      return "Le PDF est envoye directement a Gemini Flash-Lite. Le resume apparait ici progressivement au fil de la reponse.";
     }
 
-    return "Ce resume est genere localement a partir du texte extrait du PDF. Il doit etre verifie avec le document original avant usage.";
+    if (source === "gemini") {
+      return "Ce resume a ete produit par Gemini Flash-Lite directement a partir du PDF. Il doit etre verifie avec le document original avant usage.";
+    }
+
+    return "Le PDF original reste disponible et doit rester la reference si aucun resume IA n'a encore ete produit.";
   }, [isLoading, pendingGeminiSummary, source]);
+
+  const summaryLabel =
+    source === "gemini" || pendingGeminiSummary
+      ? "Resume Gemini Flash-Lite"
+      : "Resume automatique";
 
   return (
     <div className="mt-4 rounded-[1.2rem] border border-white bg-white px-4 py-4">
       <div className="flex flex-wrap items-center gap-2">
         <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-700">
-          {source === "gemini" ? "Resume Gemini Flash-Lite" : "Resume automatique"}
+          {summaryLabel}
         </p>
         {pendingGeminiSummary && isLoading ? (
           <span className="inline-flex items-center gap-2 rounded-full bg-amber-100 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-amber-900">
@@ -115,7 +144,10 @@ export function DocumentSummaryLive({
       </div>
 
       <p className="mt-3 whitespace-pre-line text-sm leading-7 text-slate-900">
-        {summary || "Aucun resume automatique n'est disponible pour ce document."}
+        {summary ||
+          (isLoading
+            ? "Analyse du PDF en cours..."
+            : "Aucun resume automatique n'est disponible pour ce document.")}
       </p>
       <p className="mt-3 text-xs leading-6 text-slate-700">{footnote}</p>
     </div>

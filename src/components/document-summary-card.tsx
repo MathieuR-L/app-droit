@@ -4,6 +4,7 @@ import { Download, FileText } from "lucide-react";
 import {
   getCustodyRecordDownloadUrl,
   getCustodyRecordSummaryState,
+  getRenderableCustodyRecordSummary,
 } from "@/lib/custody-records";
 import { formatDateTime } from "@/lib/utils";
 
@@ -15,14 +16,12 @@ export function DocumentSummaryCard({
   pageCount,
   uploadedAt,
   summary,
-  extractedText,
 }: {
   alertId: string;
   fileName?: string | null;
   pageCount?: number | null;
   uploadedAt?: Date | string | null;
   summary?: string | null;
-  extractedText?: string | null;
 }) {
   if (!fileName) {
     return null;
@@ -30,9 +29,14 @@ export function DocumentSummaryCard({
 
   const { canEnhanceWithGemini, pendingGeminiSummary, source } =
     getCustodyRecordSummaryState({
-      extractedText,
+      fileName,
       summary,
     });
+
+  const initialSummary =
+    canEnhanceWithGemini && source !== "gemini"
+      ? null
+      : getRenderableCustodyRecordSummary(summary);
 
   return (
     <section className="rounded-[1.4rem] border border-sky-300 bg-sky-100/70 p-4">
@@ -61,7 +65,7 @@ export function DocumentSummaryCard({
 
       <DocumentSummaryLive
         summaryApiUrl={`/api/alerts/${alertId}/summary`}
-        initialSummary={summary}
+        initialSummary={initialSummary}
         initialSource={source}
         pendingGeminiSummary={canEnhanceWithGemini && pendingGeminiSummary}
       />

@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import {
   DEFAULT_GEMINI_MODEL,
   generateTextSummaryWithGemini,
+  streamPdfSummaryWithGemini,
 } from "./gemini";
 
 describe("generateTextSummaryWithGemini", () => {
@@ -79,6 +80,50 @@ describe("generateTextSummaryWithGemini", () => {
     expect(fetchMock).toHaveBeenCalledWith(
       expect.stringContaining(`/v1beta/models/${DEFAULT_GEMINI_MODEL}:generateContent`),
       expect.any(Object),
+    );
+  });
+
+  it("streams a PDF summary directly from Gemini SSE events", async () => {
+    const encoder = new TextEncoder();
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      body: new ReadableStream({
+        start(controller) {
+          controller.enqueue(
+            encoder.encode(
+              'data: {"candidates":[{"content":{"parts":[{"text":"Resume PDF"}]}}]}\n\n',
+            ),
+          );
+          controller.enqueue(
+            encoder.encode(
+              'data: {"candidates":[{"content":{"parts":[{"text":"Resume PDF complete"}]}}]}\n\n',
+            ),
+          );
+          controller.close();
+        },
+      }),
+    });
+
+    const chunks: string[] = [];
+
+    for await (const chunk of streamPdfSummaryWithGemini({
+      apiKey: "test-key",
+      fileData: Buffer.from("%PDF-1.7"),
+      fileName: "garde-a-vue.pdf",
+      mimeType: "application/pdf",
+      fetchImplementation: fetchMock as unknown as typeof fetch,
+    })) {
+      chunks.push(chunk);
+    }
+
+    expect(chunks.join("")).toBe("Resume PDF complete");
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.stringContaining(
+        `/v1beta/models/${DEFAULT_GEMINI_MODEL}:streamGenerateContent?alt=sse`,
+      ),
+      expect.objectContaining({
+        method: "POST",
+      }),
     );
   });
 });

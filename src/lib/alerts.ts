@@ -275,7 +275,7 @@ export async function createCustodyAlert(input: {
     storedName: string;
     mimeType: string;
     extractedText: string | null;
-    summary: string;
+    summary: string | null;
     pageCount: number | null;
     uploadedAt: Date;
   } | null;

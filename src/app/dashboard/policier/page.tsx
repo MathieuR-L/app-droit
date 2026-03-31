@@ -113,7 +113,7 @@ export default async function PolicierDashboardPage({
 
           <SectionCard
             title="Nouvelle garde a vue"
-            description="Le dossier est automatiquement envoye a l'avocat de permanence de la meme ville. Tu peux joindre un PDF pour qu'un resume local soit prepare tout de suite, puis affine par Gemini Flash-Lite si la cle API est configuree."
+            description="Le dossier est automatiquement envoye a l'avocat de permanence de la meme ville. Tu peux joindre un PDF qui sera envoye directement a Gemini Flash-Lite pour produire un resume dynamique."
           >
             <form
               action={createAlertAction}
@@ -167,9 +167,9 @@ export default async function PolicierDashboardPage({
                   className="w-full rounded-2xl border border-dashed border-sky-500 bg-sky-50 px-4 py-3 text-sm font-medium text-slate-900 file:mr-4 file:rounded-full file:border-0 file:bg-slate-950 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-slate-800"
                 />
                 <p className="text-xs leading-6 text-slate-700">
-                  Format PDF uniquement. Le texte est extrait localement pour produire
-                  un resume immediat, puis Gemini Flash-Lite peut le remplacer
-                  automatiquement des qu&apos;il est disponible.
+                  Format PDF uniquement. La page revient immediatement, puis Gemini
+                  Flash-Lite analyse directement le document et fait apparaitre le
+                  resume a mesure qu&apos;il le genere.
                 </p>
               </label>
 
@@ -231,7 +231,6 @@ export default async function PolicierDashboardPage({
                           ) : null}
                           <DocumentSummaryCard
                             alertId={alert.id}
-                            extractedText={alert.custodyRecordExtract}
                             fileName={alert.custodyRecordFileName}
                             pageCount={alert.custodyRecordPageCount}
                             uploadedAt={alert.custodyRecordUploadedAt}
