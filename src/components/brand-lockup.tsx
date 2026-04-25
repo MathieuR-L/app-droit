@@ -20,7 +20,7 @@ export function BrandLockup({
 }: BrandLockupProps) {
   const content = (
     <span className={cn("inline-flex items-center gap-3", className)}>
-      <span className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl bg-white/95 p-2 shadow-sm ring-1 ring-black/5">
+      <span className="flex h-14 w-14 items-center justify-center overflow-hidden p-1">
         <Image
           src="/gavence-logo.png"
           alt="Logo GAVence"
