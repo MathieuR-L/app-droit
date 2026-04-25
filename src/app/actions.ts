@@ -45,7 +45,7 @@ function redirectWithMessage(
 
 const authSchema = z.object({
   email: z.email("Adresse email invalide."),
-  password: z.string().min(8, "Le mot de passe doit contenir au moins 8 caracteres."),
+  password: z.string().min(8, "Le mot de passe doit contenir au moins 8 caractères."),
 });
 
 const registrationSchema = authSchema.extend({
@@ -92,7 +92,7 @@ export async function loginAction(formData: FormData) {
       "/login",
       "error",
       error instanceof Error
-        ? `Configuration serveur incomplete: ${error.message}`
+        ? `Configuration serveur incomplète : ${error.message}`
         : "Connexion impossible pour cause de configuration serveur.",
     );
   }
@@ -118,7 +118,7 @@ export async function loginAction(formData: FormData) {
       "/login",
       "error",
       error instanceof Error
-        ? `Configuration serveur incomplete: ${error.message}`
+        ? `Configuration serveur incomplète : ${error.message}`
         : "Connexion impossible pour cause de configuration serveur.",
     );
   }
@@ -147,7 +147,7 @@ export async function registerAction(formData: FormData) {
     redirectWithMessage(
       "/register",
       "error",
-      "Un policier doit etre rattache a une ville.",
+      "Un policier doit être rattaché à une ville.",
     );
   }
 
@@ -163,7 +163,7 @@ export async function registerAction(formData: FormData) {
       redirectWithMessage(
         "/register",
         "error",
-        "Cette adresse email est deja utilisee.",
+        "Cette adresse email est déjà utilisée.",
       );
     }
 
@@ -182,7 +182,7 @@ export async function registerAction(formData: FormData) {
       "/register",
       "error",
       error instanceof Error
-        ? `Configuration serveur incomplete: ${error.message}`
+        ? `Configuration serveur incomplète : ${error.message}`
         : "Inscription impossible pour cause de configuration serveur.",
     );
   }
@@ -195,7 +195,7 @@ export async function registerAction(formData: FormData) {
       "/register",
       "error",
       error instanceof Error
-        ? `Configuration serveur incomplete: ${error.message}`
+        ? `Configuration serveur incomplète : ${error.message}`
         : "Inscription impossible pour cause de configuration serveur.",
     );
   }
@@ -209,7 +209,7 @@ export async function logoutAction() {
 }
 
 const alertSchema = z.object({
-  suspectName: z.string().min(2, "Le nom du garde a vue est requis.").max(120),
+  suspectName: z.string().min(2, "Le nom du garde à vue est requis.").max(120),
   policeStation: z.string().min(2, "Le service ou commissariat est requis.").max(120),
   notes: z.string().max(1000).optional(),
 });
@@ -227,7 +227,7 @@ export async function createAlertAction(formData: FormData) {
     redirectWithMessage(
       ROLE_ROUTES[user.role],
       "error",
-      parsed.error.issues[0]?.message ?? "Impossible de creer l'alerte.",
+      parsed.error.issues[0]?.message ?? "Impossible de créer l'alerte.",
     );
   }
 
@@ -261,14 +261,14 @@ export async function createAlertAction(formData: FormData) {
     redirectWithMessage(
       ROLE_ROUTES[user.role],
       "error",
-      error instanceof Error ? error.message : "Impossible de creer l'alerte.",
+      error instanceof Error ? error.message : "Impossible de créer l'alerte.",
     );
   }
 
   redirectWithMessage(
     ROLE_ROUTES[user.role],
     "success",
-    "La garde a vue a bien ete transmise a la permanence.",
+    "La garde à vue a bien été transmise à la permanence.",
   );
 }
 
@@ -300,7 +300,7 @@ export async function acceptAlertAction(formData: FormData) {
   redirectWithMessage(
     ROLE_ROUTES[user.role],
     "success",
-    "La garde a vue vous est desormais attribuee.",
+    "La garde à vue vous est désormais attribuée.",
   );
 }
 
@@ -328,7 +328,7 @@ export async function declineAlertAction(formData: FormData) {
   redirectWithMessage(
     ROLE_ROUTES[user.role],
     "success",
-    "La demande a ete transmise a l'avocat suivant.",
+    "La demande a été transmise à l'avocat suivant.",
   );
 }
 
@@ -346,7 +346,7 @@ export async function closeAlertAction(formData: FormData) {
   redirectWithMessage(
     ROLE_ROUTES[user.role],
     "success",
-    "Le dossier a ete cloture.",
+    "Le dossier a été clôturé.",
   );
 }
 
@@ -379,7 +379,7 @@ export async function assignLawyerCityAction(formData: FormData) {
   redirectWithMessage(
     ROLE_ROUTES[user.role],
     "success",
-    "La ville de l'avocat a bien ete mise a jour.",
+    "La ville de l'avocat a bien été mise à jour.",
   );
 }
 
@@ -400,14 +400,14 @@ export async function addLawyerToDutyAction(formData: FormData) {
     redirectWithMessage(
       ROLE_ROUTES[user.role],
       "error",
-      error instanceof Error ? error.message : "Impossible d'ajouter l'avocat a la permanence.",
+      error instanceof Error ? error.message : "Impossible d'ajouter l'avocat à la permanence.",
     );
   }
 
   redirectWithMessage(
     ROLE_ROUTES[user.role],
     "success",
-    "L'avocat a ete ajoute a la permanence.",
+    "L'avocat a été ajouté à la permanence.",
   );
 }
 
@@ -457,7 +457,7 @@ export async function removeDutyAssignmentAction(formData: FormData) {
   redirectWithMessage(
     ROLE_ROUTES[user.role],
     "success",
-    "L'avocat a ete retire de la permanence.",
+    "L'avocat a été retiré de la permanence.",
   );
 }
 
@@ -466,8 +466,8 @@ const responseWindowSchema = z.object({
   responseWindowMinutes: z.coerce
     .number()
     .int()
-    .min(1, "Le delai doit etre d'au moins 1 minute.")
-    .max(120, "Le delai ne peut pas depasser 120 minutes."),
+    .min(1, "Le délai doit être d'au moins 1 minute.")
+    .max(120, "Le délai ne peut pas dépasser 120 minutes."),
 });
 
 export async function updateResponseWindowAction(formData: FormData) {
@@ -494,7 +494,7 @@ export async function updateResponseWindowAction(formData: FormData) {
   redirectWithMessage(
     ROLE_ROUTES[user.role],
     "success",
-    "Le delai de reponse a ete mis a jour.",
+    "Le délai de réponse a été mis à jour.",
   );
 }
 

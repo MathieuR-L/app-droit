@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { BrandLockup } from "@/components/brand-lockup";
 import { getCurrentUser } from "@/lib/auth";
 import { DEMO_ACCOUNTS, ROLE_ROUTES } from "@/lib/constants";
 
@@ -11,12 +12,11 @@ export default async function Home() {
       <div className="mx-auto flex min-h-[calc(100vh-3rem)] max-w-7xl flex-col overflow-hidden rounded-[2rem] bg-[linear-gradient(140deg,#101829_0%,#10243e_38%,#1f4d4a_100%)] text-white shadow-[0_35px_120px_rgba(24,18,10,0.25)]">
         <header className="flex flex-col gap-4 border-b border-white/10 px-6 py-6 sm:px-10 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <p className="text-sm uppercase tracking-[0.35em] text-amber-100/80">
-              Application juridique
-            </p>
-            <h1 className="font-[family-name:var(--font-heading)] text-4xl sm:text-5xl">
-              GAVence
-            </h1>
+            <BrandLockup
+              subtitle="Application juridique"
+              theme="dark"
+              textClassName="text-white"
+            />
           </div>
 
           <div className="flex flex-wrap gap-3">
@@ -25,7 +25,7 @@ export default async function Home() {
                 href={ROLE_ROUTES[user.role]}
                 className="rounded-full bg-amber-200 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-white"
               >
-                Revenir a mon tableau de bord
+                Revenir à mon tableau de bord
               </Link>
             ) : (
               <>
@@ -39,7 +39,7 @@ export default async function Home() {
                   href="/register"
                   className="rounded-full bg-amber-200 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-white"
                 >
-                  Creer un compte
+                  Créer un compte
                 </Link>
               </>
             )}
@@ -50,16 +50,16 @@ export default async function Home() {
           <section className="space-y-8">
             <div className="space-y-6">
               <div className="inline-flex rounded-full border border-white/15 bg-white/10 px-4 py-2 text-sm uppercase tracking-[0.28em] text-emerald-100">
-                Signalement, notification, escalation
+                Signalement, notification, escalade
               </div>
               <div className="space-y-4">
                 <h2 className="max-w-4xl font-[family-name:var(--font-heading)] text-5xl leading-none sm:text-6xl">
-                  Une chaine de permanence claire entre police, avocat et batonnier.
+                  Une chaîne de permanence claire entre police, avocat et bâtonnier.
                 </h2>
                 <p className="max-w-2xl text-base leading-8 text-white/78 sm:text-lg">
-                  Lorsqu&apos;une nouvelle garde a vue est declaree, l&apos;application
-                  notifie automatiquement l&apos;avocat de permanence de la meme ville.
-                  Si le delai configure expire, la demande est escaladee vers le
+                  Lorsqu&apos;une nouvelle garde à vue est déclarée, l&apos;application
+                  notifie automatiquement l&apos;avocat de permanence de la même ville.
+                  Si le délai configuré expire, la demande est escaladée vers le
                   suivant sans intervention manuelle.
                 </p>
               </div>
@@ -71,8 +71,8 @@ export default async function Home() {
                   Policier
                 </p>
                 <p className="mt-3 text-sm leading-7 text-white/75">
-                  Cree une alerte depuis sa ville, suit l&apos;etat du dossier et voit
-                  quel avocat a ete contacte.
+                  Crée une alerte depuis sa ville, suit l&apos;état du dossier et voit
+                  quel avocat a été contacté.
                 </p>
               </article>
               <article className="rounded-[1.6rem] border border-white/12 bg-white/8 p-5 backdrop-blur-sm">
@@ -80,16 +80,16 @@ export default async function Home() {
                   Avocat
                 </p>
                 <p className="mt-3 text-sm leading-7 text-white/75">
-                  Recoit les notifications, accepte ou refuse dans le delai imparti,
+                  Reçoit les notifications, accepte ou refuse dans le délai imparti,
                   puis suit son historique d&apos;interventions.
                 </p>
               </article>
               <article className="rounded-[1.6rem] border border-white/12 bg-white/8 p-5 backdrop-blur-sm">
                 <p className="text-sm uppercase tracking-[0.28em] text-sky-100/75">
-                  Batonnier
+                  Bâtonnier
                 </p>
                 <p className="mt-3 text-sm leading-7 text-white/75">
-                  Attribue les villes aux avocats, regle les delais de reponse et
+                  Attribue les villes aux avocats, règle les délais de réponse et
                   compose l&apos;ordre de permanence par ville.
                 </p>
               </article>
@@ -100,10 +100,10 @@ export default async function Home() {
             <div className="flex items-center justify-between gap-4">
               <div>
                 <p className="text-sm uppercase tracking-[0.28em] text-white/60">
-                  Comptes de demonstration
+                  Comptes de démonstration
                 </p>
                 <h3 className="mt-2 font-[family-name:var(--font-heading)] text-3xl">
-                  Parcours complet deja precharge
+                  Parcours complet déjà préchargé
                 </h3>
               </div>
               <div className="rounded-full bg-white/10 px-3 py-2 text-xs uppercase tracking-[0.2em] text-amber-100">
@@ -132,9 +132,9 @@ export default async function Home() {
             </div>
 
             <p className="mt-6 text-sm leading-7 text-white/65">
-              Des villes d&apos;Ile-de-France sont deja configurees pour illustrer les
-              affectations: Paris, Bobigny, Creteil, Nanterre et d&apos;autres villes
-              peuvent etre actives par le batonnier.
+              Des villes d&apos;Île-de-France sont déjà configurées pour illustrer les
+              affectations : Paris, Bobigny, Créteil, Nanterre et d&apos;autres villes
+              peuvent être activées par le bâtonnier.
             </p>
           </aside>
         </div>

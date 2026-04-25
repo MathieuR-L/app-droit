@@ -21,7 +21,7 @@ export function NotificationsPanel({
   return (
     <SectionCard
       title="Notifications"
-      description="Le flux des alertes et des reponses apparait ici en continu."
+      description="Le flux des alertes et des réponses apparaît ici en continu."
       className="h-full"
     >
       <div className="mb-4 flex items-center justify-between">

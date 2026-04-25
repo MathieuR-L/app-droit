@@ -123,7 +123,7 @@ export async function stagePendingDemoDocument(file: File) {
     clearPendingDemoDocument();
     return {
       ok: false as const,
-      message: `En mode demo Vercel, la copie locale du PDF est limitee a ${formatDemoLocalStorageLimit()}. Le document sera envoye, mais il risque de ne pas pouvoir etre rouvert ensuite depuis ce navigateur.`,
+      message: `En mode démo Vercel, la copie locale du PDF est limitée à ${formatDemoLocalStorageLimit()}. Le document sera envoyé, mais il risque de ne pas pouvoir être rouvert ensuite depuis ce navigateur.`,
     };
   }
 
@@ -140,14 +140,14 @@ export async function stagePendingDemoDocument(file: File) {
     return {
       ok: false as const,
       message:
-        "Le navigateur n'a pas pu enregistrer la copie locale du PDF. Le document sera envoye, mais son ouverture ulterieure pourra dependre du serveur.",
+        "Le navigateur n'a pas pu enregistrer la copie locale du PDF. Le document sera envoyé, mais son ouverture ultérieure pourra dépendre du serveur.",
     };
   }
 
   return {
     ok: true as const,
     message:
-      "Une copie locale du PDF sera conservee dans ce navigateur pour la demo Vercel.",
+      "Une copie locale du PDF sera conservée dans ce navigateur pour la démo Vercel.",
   };
 }
 

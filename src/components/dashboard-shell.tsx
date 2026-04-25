@@ -5,6 +5,8 @@ import { CITY_LABELS, ROLE_LABELS } from "@/lib/constants";
 import { isVercelDemoStorageMode } from "@/lib/runtime-database";
 import { cn } from "@/lib/utils";
 
+import { BrandLockup } from "./brand-lockup";
+
 type DashboardShellProps = {
   user: {
     name: string;
@@ -57,9 +59,7 @@ export function DashboardShell({
         <header className="border-b border-stone-300 bg-[#f2ece3] px-6 py-6 text-slate-950 sm:px-10">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div className="space-y-3">
-              <p className={cn("text-sm uppercase tracking-[0.35em]", palette.highlight)}>
-                Plateforme GAVence
-              </p>
+              <BrandLockup subtitle="Plateforme juridique" />
               <div className="space-y-2">
                 <h1 className="font-[family-name:var(--font-heading)] text-4xl leading-none text-slate-950 sm:text-5xl">
                   {title}
@@ -69,10 +69,10 @@ export function DashboardShell({
                 </p>
                 {showPersistenceWarning ? (
                   <p className="max-w-3xl rounded-2xl border border-amber-300 bg-amber-100/90 px-4 py-3 text-sm font-medium text-slate-950">
-                    Mode demo Vercel detecte: les PDF recents sont sauvegardes
+                    Mode démo Vercel détecté : les PDF récents sont sauvegardés
                     aussi dans ce navigateur quand c&apos;est possible, mais les
-                    alertes et reglages restent ephemeres sans base persistante
-                    configuree.
+                    alertes et réglages restent éphémères sans base persistante
+                    configurée.
                   </p>
                 ) : null}
               </div>
@@ -94,7 +94,7 @@ export function DashboardShell({
                   type="submit"
                   className="rounded-full border border-stone-400 bg-white px-4 py-2 text-sm font-semibold text-slate-950 transition hover:border-slate-950 hover:bg-stone-100"
                 >
-                  Se deconnecter
+                  Se déconnecter
                 </button>
               </form>
             </div>

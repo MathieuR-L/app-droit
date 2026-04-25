@@ -4,7 +4,7 @@ export function cn(...values: Array<string | false | null | undefined>) {
 
 export function formatDateTime(date: Date | string | null | undefined) {
   if (!date) {
-    return "Non defini";
+    return "Non défini";
   }
 
   return new Intl.DateTimeFormat("fr-FR", {

@@ -17,7 +17,7 @@ const headingFont = Cormorant_Garamond({
 export const metadata: Metadata = {
   title: "GAVence",
   description:
-    "Application web de gestion des gardes a vue, des notifications avocats et des permanences par ville.",
+    "Application web de gestion des gardes à vue, des notifications avocats et des permanences par ville.",
 };
 
 export default function RootLayout({

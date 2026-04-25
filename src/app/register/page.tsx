@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { registerAction } from "@/app/actions";
+import { BrandLockup } from "@/components/brand-lockup";
 import { FeedbackBanner } from "@/components/feedback-banner";
 import { redirectIfAuthenticated } from "@/lib/auth";
 import { CITY_OPTIONS, ROLE_OPTIONS } from "@/lib/constants";
@@ -24,24 +25,29 @@ export default async function RegisterPage({
     <main className="min-h-screen px-4 py-6 sm:px-6 lg:px-10">
       <div className="mx-auto grid min-h-[calc(100vh-3rem)] max-w-6xl overflow-hidden rounded-[2rem] bg-white shadow-[0_35px_120px_rgba(24,18,10,0.18)] lg:grid-cols-[0.95fr_1.05fr]">
         <section className="bg-[linear-gradient(160deg,#221711_0%,#4f3322_45%,#8a5a30_100%)] px-6 py-8 text-white sm:px-10">
+          <BrandLockup
+            subtitle="Application juridique"
+            theme="dark"
+            textClassName="text-white"
+          />
           <p className="text-sm uppercase tracking-[0.32em] text-amber-100/75">
-            Creation de compte
+            Création de compte
           </p>
           <h1 className="mt-4 font-[family-name:var(--font-heading)] text-5xl leading-none">
-            Ouvrir un acces par metier.
+            Ouvrir un accès par métier.
           </h1>
           <p className="mt-6 max-w-lg text-base leading-8 text-white/76">
-            Les policiers choisissent leur ville d&apos;exercice a l&apos;inscription.
-            Les avocats peuvent creer leur compte puis attendre l&apos;affectation du
-            batonnier pour rejoindre une permanence locale.
+            Les policiers choisissent leur ville d&apos;exercice à l&apos;inscription.
+            Les avocats peuvent créer leur compte puis attendre l&apos;affectation du
+            bâtonnier pour rejoindre une permanence locale.
           </p>
           <div className="mt-10 rounded-[1.6rem] border border-white/10 bg-white/8 p-5">
             <p className="text-sm uppercase tracking-[0.24em] text-amber-100/80">
-              Conseil de demonstration
+              Conseil de démonstration
             </p>
             <p className="mt-3 text-sm leading-7 text-white/75">
-              Si tu t&apos;inscris en tant qu&apos;avocat, la ville pourra ensuite etre
-              attribuee depuis l&apos;espace batonnier.
+              Si tu t&apos;inscris en tant qu&apos;avocat, la ville pourra ensuite être
+              attribuée depuis l&apos;espace bâtonnier.
             </p>
           </div>
         </section>
@@ -51,7 +57,7 @@ export default async function RegisterPage({
             <div className="mb-8 flex items-center justify-between gap-4">
               <div>
                 <p className="text-sm uppercase tracking-[0.3em] text-slate-700">
-                  Profil et role
+                  Profil et rôle
                 </p>
                 <h2 className="mt-2 font-[family-name:var(--font-heading)] text-4xl text-slate-950">
                   S&apos;inscrire
@@ -61,7 +67,7 @@ export default async function RegisterPage({
                 href="/"
                 className="rounded-full border border-stone-400 bg-white px-4 py-2 text-sm font-semibold text-slate-800 transition hover:border-slate-950 hover:text-slate-950"
               >
-                Retour accueil
+                Retour à l&apos;accueil
               </Link>
             </div>
 
@@ -78,7 +84,7 @@ export default async function RegisterPage({
                     name="name"
                     required
                     className="w-full rounded-2xl border border-stone-400 bg-white px-4 py-3 text-slate-950 outline-none transition placeholder:text-slate-500 focus:border-slate-950"
-                    placeholder="Prenom Nom"
+                    placeholder="Prénom Nom"
                   />
                 </label>
 
@@ -94,7 +100,7 @@ export default async function RegisterPage({
                 </label>
 
                 <label className="block space-y-2">
-                  <span className="text-sm font-semibold text-slate-800">Role</span>
+                  <span className="text-sm font-semibold text-slate-800">Rôle</span>
                   <select
                     name="role"
                     defaultValue="POLICIER"
@@ -117,7 +123,7 @@ export default async function RegisterPage({
                     defaultValue=""
                     className="w-full rounded-2xl border border-stone-400 bg-white px-4 py-3 text-slate-950 outline-none transition focus:border-slate-950"
                   >
-                    <option value="">Attribuee plus tard ou non requise</option>
+                    <option value="">Attribuée plus tard ou non requise</option>
                     {CITY_OPTIONS.map((city) => (
                       <option key={city.value} value={city.value}>
                         {city.label}
@@ -136,7 +142,7 @@ export default async function RegisterPage({
                     required
                     minLength={8}
                     className="w-full rounded-2xl border border-stone-400 bg-white px-4 py-3 text-slate-950 outline-none transition placeholder:text-slate-500 focus:border-slate-950"
-                    placeholder="8 caracteres minimum"
+                    placeholder="8 caractères minimum"
                   />
                 </label>
 
@@ -144,13 +150,13 @@ export default async function RegisterPage({
                   type="submit"
                   className="sm:col-span-2 w-full rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold uppercase tracking-[0.24em] text-white transition hover:bg-slate-800"
                 >
-                  Creer mon compte
+                  Créer mon compte
                 </button>
               </form>
             </div>
 
             <p className="mt-6 text-sm text-slate-700">
-              Deja inscrit ?{" "}
+              Déjà inscrit ?{" "}
               <Link href="/login" className="font-semibold text-slate-950">
                 Se connecter
               </Link>

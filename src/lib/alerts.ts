@@ -136,14 +136,14 @@ async function assignNextLawyer(
         alertId: alert.id,
         title: `Aucun avocat disponible pour ${alert.reference}`,
         message:
-          "Tous les avocats de permanence de cette ville ont ete contactes sans reponse.",
+          "Tous les avocats de permanence de cette ville ont été contactés sans réponse.",
         type: NotificationType.SYSTEM,
       },
     });
 
     await notifyBatonniers(
       tx,
-      `Escalade terminee pour ${alert.reference}`,
+      `Escalade terminée pour ${alert.reference}`,
       "Plus aucun avocat de permanence n'est disponible sur cette ville.",
       alert.id,
     );
@@ -179,9 +179,9 @@ async function assignNextLawyer(
       userId: nextDuty.lawyerId,
       alertId: alert.id,
       title: escalated
-        ? `Escalade de garde a vue ${alert.reference}`
-        : `Nouvelle garde a vue ${alert.reference}`,
-      message: `Vous etes sollicite en priorite ${nextDuty.priority}. Reponse attendue sous ${formatRelativeMinutes(responseWindowMinutes)}.${alert.custodyRecordFileName ? " Un PDF de garde a vue est disponible." : ""}`,
+        ? `Escalade de garde à vue ${alert.reference}`
+        : `Nouvelle garde à vue ${alert.reference}`,
+      message: `Vous êtes sollicité en priorité ${nextDuty.priority}. Réponse attendue sous ${formatRelativeMinutes(responseWindowMinutes)}.${alert.custodyRecordFileName ? " Un PDF de garde à vue est disponible." : ""}`,
       type: escalated ? NotificationType.ESCALATED : NotificationType.NEW_ALERT,
     },
   });
@@ -194,8 +194,8 @@ async function assignNextLawyer(
         ? `Escalade en cours pour ${alert.reference}`
         : `Alerte transmise pour ${alert.reference}`,
       message: escalated
-        ? `${nextDuty.lawyer.name} a ete notifie apres expiration du delai precedent.`
-        : `${nextDuty.lawyer.name} a ete notifie en premiere intention.`,
+        ? `${nextDuty.lawyer.name} a été notifié après expiration du délai précédent.`
+        : `${nextDuty.lawyer.name} a été notifié en première intention.`,
       type: escalated ? NotificationType.ESCALATED : NotificationType.NEW_ALERT,
     },
   });
@@ -297,7 +297,7 @@ export async function createCustodyAlert(input: {
       !policeOfficer.city
     ) {
       throw new Error(
-        "Le policier doit etre rattache a une ville avant de creer une garde a vue.",
+        "Le policier doit être rattaché à une ville avant de créer une garde à vue.",
       );
     }
 
@@ -364,7 +364,7 @@ export async function acceptAlert(alertId: string, lawyerId: string) {
       assignment.alert.status !== AlertStatus.PENDING ||
       assignment.responseDeadline <= now
     ) {
-      throw new Error("Cette garde a vue n'est plus disponible.");
+      throw new Error("Cette garde à vue n'est plus disponible.");
     }
 
     await tx.alertAssignment.update({
@@ -392,7 +392,7 @@ export async function acceptAlert(alertId: string, lawyerId: string) {
         alertId,
         title: `${assignment.lawyer.name} accepte ${assignment.alert.reference}`,
         message:
-          "L'avocat de permanence a accepte la mission et peut desormais etre contacte.",
+          "L'avocat de permanence a accepté la mission et peut désormais être contacté.",
         type: NotificationType.ALERT_ACCEPTED,
       },
     });
@@ -431,7 +431,7 @@ export async function declineAlert(alertId: string, lawyerId: string) {
       assignment.alert.status !== AlertStatus.PENDING ||
       assignment.responseDeadline <= now
     ) {
-      throw new Error("Cette garde a vue n'est plus disponible.");
+      throw new Error("Cette garde à vue n'est plus disponible.");
     }
 
     await tx.alertAssignment.update({
@@ -446,9 +446,9 @@ export async function declineAlert(alertId: string, lawyerId: string) {
       data: {
         userId: assignment.alert.policeOfficerId,
         alertId,
-        title: `${assignment.lawyer.name} a refuse ${assignment.alert.reference}`,
+        title: `${assignment.lawyer.name} a refusé ${assignment.alert.reference}`,
         message:
-          "La demande est automatiquement transmise a l'avocat suivant de la permanence.",
+          "La demande est automatiquement transmise à l'avocat suivant de la permanence.",
         type: NotificationType.ALERT_DECLINED,
       },
     });
@@ -517,8 +517,8 @@ export async function assignLawyerCity(
     await tx.notification.create({
       data: {
         userId: lawyerId,
-        title: "Ville d'intervention mise a jour",
-        message: `Le batonnier vous a rattache a la ville ${city}.`,
+        title: "Ville d'intervention mise à jour",
+        message: `Le bâtonnier vous a rattaché à la ville ${city}.`,
         type: NotificationType.SYSTEM,
       },
     });
@@ -553,12 +553,12 @@ export async function addLawyerToDuty(
     });
 
     if (!lawyer || lawyer.role !== Role.AVOCAT) {
-      throw new Error("Seuls les avocats peuvent etre affectes a une permanence.");
+      throw new Error("Seuls les avocats peuvent être affectés à une permanence.");
     }
 
     if (lawyer.city !== city) {
       throw new Error(
-        "L'avocat doit d'abord etre rattache a la meme ville avant d'etre ajoute a la permanence.",
+        "L'avocat doit d'abord être rattaché à la même ville avant d'être ajouté à la permanence.",
       );
     }
 

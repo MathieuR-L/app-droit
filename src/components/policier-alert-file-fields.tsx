@@ -20,7 +20,7 @@ export function PolicierAlertFileFields({
     <>
       <label className="block space-y-2 md:col-span-2">
         <span className="text-sm font-semibold text-slate-800">
-          PDF de garde a vue
+          PDF de garde à vue
         </span>
         <input
           type="file"
@@ -45,7 +45,7 @@ export function PolicierAlertFileFields({
               setLocalCopyTone(result.ok ? "success" : "warning");
             } catch {
               setLocalCopyMessage(
-                "La copie locale du PDF n'a pas pu etre preparee dans ce navigateur.",
+                "La copie locale du PDF n'a pas pu être préparée dans ce navigateur.",
               );
               setLocalCopyTone("warning");
             } finally {
@@ -54,14 +54,14 @@ export function PolicierAlertFileFields({
           }}
         />
         <p className="text-xs leading-6 text-slate-700">
-          Format PDF uniquement. Le document sera joint a la garde a vue et
+          Format PDF uniquement. Le document sera joint à la garde à vue et
           restera consultable directement depuis l&apos;application.
         </p>
         {demoStorageMode ? (
           <p className="text-xs leading-6 text-slate-700">
-            En mode demo Vercel, une copie locale du PDF est aussi enregistree
-            dans ce navigateur quand c&apos;est possible pour eviter les pertes
-            liees au stockage serveur ephemere.
+            En mode démo Vercel, une copie locale du PDF est aussi enregistrée
+            dans ce navigateur quand c&apos;est possible pour éviter les pertes
+            liées au stockage serveur éphémère.
           </p>
         ) : null}
         {localCopyMessage ? (
@@ -83,8 +83,8 @@ export function PolicierAlertFileFields({
         className="md:col-span-2 rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold uppercase tracking-[0.24em] text-white transition hover:bg-slate-800 disabled:cursor-wait disabled:bg-slate-500"
       >
         {isPreparingLocalCopy
-          ? "Preparation du PDF..."
-          : "Signaler la garde a vue"}
+          ? "Préparation du PDF..."
+          : "Signaler la garde à vue"}
       </button>
     </>
   );

@@ -10,7 +10,7 @@ function getVercelPersistenceError() {
   return NextResponse.json(
     {
       error:
-        "Le document n'est pas disponible sur cette instance Vercel. Sans DATABASE_URL persistante, les gardes a vue et leurs PDF peuvent disparaitre entre deux requetes.",
+        "Le document n'est pas disponible sur cette instance Vercel. Sans DATABASE_URL persistante, les gardes à vue et leurs PDF peuvent disparaître entre deux requêtes.",
     },
     { status: 503 },
   );
@@ -65,7 +65,7 @@ export async function GET(
     alert.assignments.length > 0;
 
   if (!hasAccess) {
-    return NextResponse.json({ error: "Acces refuse." }, { status: 403 });
+    return NextResponse.json({ error: "Accès refusé." }, { status: 403 });
   }
 
   try {

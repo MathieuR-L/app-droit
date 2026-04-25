@@ -51,7 +51,7 @@ export function DocumentOpenButton({
             }, 60_000);
           } catch {
             setError(
-              "Le PDF n'est disponible que dans le navigateur qui l'a televerse tant que la demo Vercel n'utilise pas de base persistante.",
+              "Le PDF n'est disponible que dans le navigateur qui l'a téléversé tant que la démo Vercel n'utilise pas de base persistante.",
             );
           }
         }}

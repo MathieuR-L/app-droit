@@ -1,10 +1,10 @@
 export const CITY_OPTIONS = [
   { value: "PARIS", label: "Paris" },
   { value: "BOBIGNY", label: "Bobigny" },
-  { value: "CRETEIL", label: "Creteil" },
+  { value: "CRETEIL", label: "Créteil" },
   { value: "NANTERRE", label: "Nanterre" },
   { value: "VERSAILLES", label: "Versailles" },
-  { value: "EVRY_COURCOURONNES", label: "Evry-Courcouronnes" },
+  { value: "EVRY_COURCOURONNES", label: "Évry-Courcouronnes" },
   { value: "MELUN", label: "Melun" },
   { value: "PONTOISE", label: "Pontoise" },
 ] as const;
@@ -16,7 +16,7 @@ export const CITY_LABELS = Object.fromEntries(
 export const ROLE_OPTIONS = [
   { value: "POLICIER", label: "Policier" },
   { value: "AVOCAT", label: "Avocat" },
-  { value: "BATONNIER", label: "Batonnier" },
+  { value: "BATONNIER", label: "Bâtonnier" },
 ] as const;
 
 export const ROLE_LABELS = Object.fromEntries(
@@ -31,30 +31,30 @@ export const ROLE_ROUTES = {
 
 export const ALERT_STATUS_LABELS = {
   PENDING: "En attente",
-  ACCEPTED: "Acceptee",
-  UNANSWERED: "Sans reponse",
-  CLOSED: "Cloturee",
+  ACCEPTED: "Acceptée",
+  UNANSWERED: "Sans réponse",
+  CLOSED: "Clôturée",
 } as const;
 
 export const ASSIGNMENT_STATUS_LABELS = {
-  PENDING: "Notification envoyee",
-  ACCEPTED: "Acceptee",
-  DECLINED: "Refusee",
-  EXPIRED: "Delai depasse",
+  PENDING: "Notification envoyée",
+  ACCEPTED: "Acceptée",
+  DECLINED: "Refusée",
+  EXPIRED: "Délai dépassé",
 } as const;
 
 export const DEMO_ACCOUNTS = [
   {
-    role: "Batonnier",
+    role: "Bâtonnier",
     email: "batonnier@demo.fr",
     password: "demo1234",
-    note: "Assigne les villes et gere l'ordre de permanence.",
+    note: "Assigne les villes et gère l'ordre de permanence.",
   },
   {
     role: "Policier",
     email: "policier.paris@demo.fr",
     password: "demo1234",
-    note: "Peut declarer une nouvelle garde a vue a Paris.",
+    note: "Peut déclarer une nouvelle garde à vue à Paris.",
   },
   {
     role: "Avocat",

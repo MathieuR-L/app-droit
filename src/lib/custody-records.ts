@@ -50,11 +50,11 @@ export async function prepareCustodyRecordUpload(
   const mimeType = file.type || "application/pdf";
 
   if (!safeName.toLowerCase().endsWith(".pdf")) {
-    throw new Error("Seuls les fichiers PDF sont acceptes.");
+    throw new Error("Seuls les fichiers PDF sont acceptés.");
   }
 
   if (file.size > MAX_PDF_SIZE_BYTES) {
-    throw new Error("Le PDF depasse la taille maximale autorisee de 15 Mo.");
+    throw new Error("Le PDF dépasse la taille maximale autorisée de 15 Mo.");
   }
 
   const buffer = Buffer.from(await file.arrayBuffer());

@@ -112,8 +112,8 @@ export default async function BatonnierDashboardPage({
   return (
     <DashboardShell
       user={user}
-      title="Espace Batonnier"
-      subtitle="Assigne les villes, regle les delais de reponse et compose l'ordre de permanence sur chaque ressort."
+      title="Espace Bâtonnier"
+      subtitle="Assigne les villes, règle les délais de réponse et compose l'ordre de permanence sur chaque ressort."
       accent="amber"
     >
       <AutoRefresh intervalMs={20000} />
@@ -132,8 +132,8 @@ export default async function BatonnierDashboardPage({
 
         <div className="grid gap-4 lg:grid-cols-[0.95fr_1.05fr]">
           <SectionCard
-            title="Attribuer une ville a un avocat"
-            description="Le rattachement a une ville conditionne ensuite l'integration dans l'ordre de permanence."
+            title="Attribuer une ville à un avocat"
+            description="Le rattachement à une ville conditionne ensuite l'intégration dans l'ordre de permanence."
           >
             <form action={assignLawyerCityAction} className="grid gap-4 md:grid-cols-2">
               <label className="block space-y-2">
@@ -181,7 +181,7 @@ export default async function BatonnierDashboardPage({
                 >
                   <p className="text-sm font-semibold text-slate-950">{lawyer.name}</p>
                   <p className="text-xs text-slate-500">
-                    {lawyer.email} • {lawyer.city ? CITY_LABELS[lawyer.city] : "Sans ville assignee"}
+                    {lawyer.email} • {lawyer.city ? CITY_LABELS[lawyer.city] : "Sans ville assignée"}
                   </p>
                 </div>
               ))}
@@ -196,7 +196,7 @@ export default async function BatonnierDashboardPage({
 
         <SectionCard
           title="Permanences par ville"
-          description="Chaque ville dispose de son propre delai de reponse et de son ordre de priorite."
+          description="Chaque ville dispose de son propre délai de réponse et de son ordre de priorité."
         >
           <div className="grid gap-4 xl:grid-cols-2">
             {CITY_OPTIONS.map((city) => {
@@ -228,7 +228,7 @@ export default async function BatonnierDashboardPage({
                       <input type="hidden" name="city" value={city.value} />
                       <label className="block space-y-2">
                         <span className="text-xs uppercase tracking-[0.2em] text-slate-500">
-                          Delai
+                          Délai
                         </span>
                         <input
                           type="number"
@@ -243,7 +243,7 @@ export default async function BatonnierDashboardPage({
                         type="submit"
                         className="rounded-full border border-slate-900 px-4 py-3 text-sm font-semibold text-slate-900 transition hover:bg-slate-900 hover:text-white"
                       >
-                        Mettre a jour
+                        Mettre à jour
                       </button>
                     </form>
                   </div>
@@ -269,7 +269,7 @@ export default async function BatonnierDashboardPage({
                       disabled={!availableLawyers.length}
                       className="rounded-full bg-slate-950 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-300"
                     >
-                      Ajouter a la permanence
+                      Ajouter à la permanence
                     </button>
                   </form>
 
@@ -283,7 +283,7 @@ export default async function BatonnierDashboardPage({
                           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                             <div>
                               <p className="text-sm font-semibold text-slate-950">
-                                Priorite {assignment.priority} • {assignment.lawyer.name}
+                                Priorité {assignment.priority} • {assignment.lawyer.name}
                               </p>
                               <p className="text-xs text-slate-500">
                                 {assignment.lawyer.email}
@@ -335,7 +335,7 @@ export default async function BatonnierDashboardPage({
                       ))
                     ) : (
                       <div className="rounded-2xl border border-dashed border-stone-300 bg-white p-5 text-sm leading-7 text-slate-600">
-                        Aucun avocat de permanence n&apos;est configure pour cette ville.
+                        Aucun avocat de permanence n&apos;est configuré pour cette ville.
                       </div>
                     )}
                   </div>
@@ -346,8 +346,8 @@ export default async function BatonnierDashboardPage({
         </SectionCard>
 
         <SectionCard
-          title="Vue systeme des alertes"
-          description="Le batonnier peut verifier l'etat des sollicitations sur l'ensemble des villes et consulter les PDF joints."
+          title="Vue système des alertes"
+          description="Le bâtonnier peut vérifier l'état des sollicitations sur l'ensemble des villes et consulter les PDF joints."
         >
           <div className="grid gap-4 lg:grid-cols-2">
             {recentAlerts.length ? (
@@ -381,7 +381,7 @@ export default async function BatonnierDashboardPage({
                       "Aucun"}
                   </p>
                   <p className="mt-3 text-xs text-slate-500">
-                    Creee le {formatDateTime(alert.createdAt)}
+                    Créée le {formatDateTime(alert.createdAt)}
                   </p>
                   <div className="mt-4">
                     <DocumentSummaryCard

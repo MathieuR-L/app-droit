@@ -78,7 +78,7 @@ export default async function PolicierDashboardPage({
     <DashboardShell
       user={user}
       title="Espace Policier"
-      subtitle="Declare une garde a vue, visualise qui a ete notifie et suis l'escalade en temps reel sur ta ville."
+      subtitle="Déclare une garde à vue, visualise qui a été notifié et suis l'escalade en temps réel sur ta ville."
       accent="blue"
     >
       <AutoRefresh intervalMs={15000} />
@@ -102,7 +102,7 @@ export default async function PolicierDashboardPage({
                 Ville
               </p>
               <p className="mt-4 font-[family-name:var(--font-heading)] text-4xl">
-                {user.city ? CITY_LABELS[user.city] : "A definir"}
+                {user.city ? CITY_LABELS[user.city] : "À définir"}
               </p>
             </div>
             <div className="rounded-[1.6rem] bg-sky-50 p-5">
@@ -115,7 +115,7 @@ export default async function PolicierDashboardPage({
             </div>
             <div className="rounded-[1.6rem] bg-emerald-50 p-5">
               <p className="text-xs uppercase tracking-[0.24em] text-slate-500">
-                Acceptees / cloturees
+                Acceptées / clôturées
               </p>
               <p className="mt-4 font-[family-name:var(--font-heading)] text-4xl text-slate-950">
                 {acceptedCount + closedCount}
@@ -124,8 +124,8 @@ export default async function PolicierDashboardPage({
           </div>
 
           <SectionCard
-            title="Nouvelle garde a vue"
-            description="Le dossier est automatiquement envoye a l'avocat de permanence de la meme ville. Tu peux joindre un PDF pour que l'avocat puisse le consulter directement."
+            title="Nouvelle garde à vue"
+            description="Le dossier est automatiquement envoyé à l'avocat de permanence de la même ville. Tu peux joindre un PDF pour que l'avocat puisse le consulter directement."
           >
             <form
               action={createAlertAction}
@@ -134,14 +134,14 @@ export default async function PolicierDashboardPage({
             >
               <label className="block space-y-2">
                 <span className="text-sm font-semibold text-slate-800">
-                  Nom du garde a vue
+                  Nom du garde à vue
                 </span>
                 <input
                   type="text"
                   name="suspectName"
                   required
                   className="w-full rounded-2xl border border-stone-400 bg-white px-4 py-3 text-slate-950 outline-none transition placeholder:text-slate-500 focus:border-slate-950"
-                  placeholder="Nom ou reference interne"
+                  placeholder="Nom ou référence interne"
                 />
               </label>
 
@@ -164,7 +164,7 @@ export default async function PolicierDashboardPage({
                   name="notes"
                   rows={4}
                   className="w-full rounded-2xl border border-stone-400 bg-white px-4 py-3 text-slate-950 outline-none transition placeholder:text-slate-500 focus:border-slate-950"
-                  placeholder="Elements utiles pour l'avocat de permanence"
+                  placeholder="Éléments utiles pour l'avocat de permanence"
                 />
               </label>
 
@@ -173,8 +173,8 @@ export default async function PolicierDashboardPage({
           </SectionCard>
 
           <SectionCard
-            title="Demandes recentes"
-            description="Chaque dossier affiche le statut courant, l'avocat contacte et l'historique des notifications."
+            title="Demandes récentes"
+            description="Chaque dossier affiche le statut courant, l'avocat contacté et l'historique des notifications."
           >
             <div className="space-y-4">
               {alerts.length ? (
@@ -205,13 +205,13 @@ export default async function PolicierDashboardPage({
                               {alert.suspectName}
                             </h3>
                             <p className="text-sm text-slate-600">
-                              {alert.policeStation} • Creee le {formatDateTime(alert.createdAt)}
+                              {alert.policeStation} • Créée le {formatDateTime(alert.createdAt)}
                             </p>
                           </div>
                           <p className="text-sm leading-6 text-slate-700">
-                            Avocat contacte: <strong>{activeLawyer}</strong>
+                            Avocat contacté: <strong>{activeLawyer}</strong>
                             {alert.responseDeadline
-                              ? ` • Echeance: ${formatDateTime(alert.responseDeadline)}`
+                              ? ` • Échéance: ${formatDateTime(alert.responseDeadline)}`
                               : ""}
                           </p>
                           {alert.notes ? (
@@ -234,7 +234,7 @@ export default async function PolicierDashboardPage({
                               type="submit"
                               className="rounded-full border border-slate-900 px-4 py-2 text-sm font-semibold text-slate-900 transition hover:bg-slate-900 hover:text-white"
                             >
-                              Cloturer le dossier
+                              Clôturer le dossier
                             </button>
                           </form>
                         ) : null}
@@ -248,7 +248,7 @@ export default async function PolicierDashboardPage({
                           >
                             <div className="flex items-center justify-between gap-3">
                               <p className="text-sm font-semibold text-slate-950">
-                                Priorite {assignment.priority} • {assignment.lawyer.name}
+                                Priorité {assignment.priority} • {assignment.lawyer.name}
                               </p>
                               <StatusBadge
                                 label={ASSIGNMENT_STATUS_LABELS[assignment.status]}
@@ -256,7 +256,7 @@ export default async function PolicierDashboardPage({
                               />
                             </div>
                             <p className="mt-2 text-xs text-slate-500">
-                              Notifie le {formatDateTime(assignment.notifiedAt)}
+                              Notifié le {formatDateTime(assignment.notifiedAt)}
                             </p>
                           </div>
                         ))}
@@ -266,7 +266,7 @@ export default async function PolicierDashboardPage({
                 })
               ) : (
                 <div className="rounded-[1.6rem] border border-dashed border-stone-300 bg-stone-50 p-6 text-sm leading-7 text-slate-600">
-                  Aucune garde a vue enregistree pour le moment.
+                  Aucune garde à vue enregistrée pour le moment.
                 </div>
               )}
             </div>
